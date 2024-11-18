@@ -1,0 +1,4 @@
+.sconsign.dblite
+.DS_Store
+src/*.os
+build/
