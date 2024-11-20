@@ -3,6 +3,8 @@
 
 // Credit to Rob Mayoff for compiling this list
 
+#include <cassert>
+
 #include <godot_cpp/core/builtin_ptrcall.hpp>
 #include <godot_cpp/core/object_id.hpp>
 #include <godot_cpp/core/method_ptrcall.hpp>

@@ -2,6 +2,8 @@
 
 env = SConscript("godot-cpp/SConstruct")
 
+env.Append(CXXFLAGS='-std=c++2b')
+
 # Generate compilation database
 env.Tool('compilation_db')
 env.CompilationDatabase("compile_commands.json")
