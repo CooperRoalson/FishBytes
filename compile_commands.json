@@ -5814,6 +5814,18 @@
         "output": "godot-cpp/gen/src/variant/utility_functions.macos.template_debug.universal.o"
     },
     {
+        "command": "clang++ -o build/BoidEntity.os -c -std=c++17 -fno-exceptions -std=c++2b -arch x86_64 -arch arm64 -fvisibility=hidden -O2 -fPIC -DMACOS_ENABLED -DUNIX_ENABLED -DTHREADS_ENABLED -DHOT_RELOAD_ENABLED -DDEBUG_ENABLED -DDEBUG_METHODS_ENABLED -DNDEBUG -DGDEXTENSION -Igodot-cpp/gdextension -Igodot-cpp/include -Igodot-cpp/gen/include src/BoidEntity.cpp",
+        "directory": "/Users/CooperRoalson/Documents/Coding/UT/CS 354R/FishBytes",
+        "file": "src/BoidEntity.cpp",
+        "output": "build/BoidEntity.os"
+    },
+    {
+        "command": "clang++ -o build/BoidEntity.os -c -std=c++17 -fno-exceptions -std=c++2b -arch x86_64 -arch arm64 -fvisibility=hidden -O2 -fPIC -DMACOS_ENABLED -DUNIX_ENABLED -DTHREADS_ENABLED -DHOT_RELOAD_ENABLED -DDEBUG_ENABLED -DDEBUG_METHODS_ENABLED -DNDEBUG -DGDEXTENSION -Igodot-cpp/gdextension -Igodot-cpp/include -Igodot-cpp/gen/include src/BoidEntity.cpp",
+        "directory": "/Users/CooperRoalson/Documents/Coding/UT/CS 354R/FishBytes",
+        "file": "src/BoidEntity.cpp",
+        "output": "build/BoidEntity.os"
+    },
+    {
         "command": "clang++ -o build/GameManager.os -c -std=c++17 -fno-exceptions -std=c++2b -arch x86_64 -arch arm64 -fvisibility=hidden -O2 -fPIC -DMACOS_ENABLED -DUNIX_ENABLED -DTHREADS_ENABLED -DHOT_RELOAD_ENABLED -DDEBUG_ENABLED -DDEBUG_METHODS_ENABLED -DNDEBUG -DGDEXTENSION -Igodot-cpp/gdextension -Igodot-cpp/include -Igodot-cpp/gen/include src/GameManager.cpp",
         "directory": "/Users/CooperRoalson/Documents/Coding/UT/CS 354R/FishBytes",
         "file": "src/GameManager.cpp",

@@ -28,7 +28,7 @@ void MaterialSimulator::processTile(Grid& grid, int x, int y, Materials& materia
         case MaterialProperties::FLUID: {
             if (y > 0) {
                 auto below = grid[x, y - 1];
-                if (materials.isFluid(below)) {
+                if (materials.getProperties(below)->isFluid()) {
                     grid[x, y - 1] = mat;
                     grid[x, y] = below;
                 }

@@ -27,6 +27,14 @@ public:
     static Ref<MaterialProperties> makeEmptyMaterial() {
         return {memnew(MaterialProperties())};
     }
+
+    bool isFluid() const {
+        return type == FLUID || type == EMPTY;
+    }
+
+    bool isSolid() const {
+        return !isFluid();
+    }
 };
 
 
@@ -37,11 +45,6 @@ public:
 
     Ref<MaterialProperties> getProperties(const StringName& mat) {
         return properties[mat];
-    }
-
-    bool isFluid(const StringName& mat) {
-        auto type = getProperties(mat)->type;
-        return type == MaterialProperties::FLUID || type == MaterialProperties::EMPTY;
     }
 
     static Materials defaultMaterials() {

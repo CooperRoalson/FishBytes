@@ -11,7 +11,7 @@ class GameManager : public Node2D {
     std::unique_ptr<GameState> gameState;
 
     int width = 50, height = 50;
-    double simSpeed = 5.0;
+    double simSpeed = 8.0;
 
     Ref<ImageTexture> texture;
     Ref<Image> image;

@@ -22,10 +22,27 @@ struct Grid {
     }
 };
 
+class GameState;
+
+class Entity {
+protected:
+    Vector2 position;
+
+public:
+    explicit Entity(Vector2 position) : position(position) {}
+    virtual ~Entity() = default;
+
+    virtual void render(Ref<Image> image) = 0;
+    virtual void process(double delta, GameState& gameState) = 0;
+
+    Vector2 getPosition() { return position; }
+};
+
 class GameState {
     Materials materials;
 
     Grid grid;
+    std::vector<Entity*> entities;
 
     double simSpeed;
     double timeSinceLastFrame = 0.0;
@@ -41,6 +58,14 @@ public:
     void generateFrame(Ref<Image> image);
 
     void process(double delta);
+
+    // TODO: change to generator?
+    // Could maybe be parallelized?
+    void processNearbyEntities(Vector2 position, double radius, const std::function<void(Entity&)>& callback);
+
+    Ref<MaterialProperties> getMaterialProperties(Vector2i pos);
+
+    Vector2i getDimensions() const { return {grid.width, grid.height}; }
 };
 
 
