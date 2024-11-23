@@ -1,8 +1,8 @@
 #include "BoidEntity.h"
 
 BoidEntity::BoidEntity(Vector2 position, BoidSettings* settings) : Entity(position), settings(settings) {
-    velocity = Vector2(UtilityFunctions::randf_range(-2, 2),
-                       UtilityFunctions::randf_range(-2, 2));
+    // TODO: make this more configurable
+    velocity = Vector2::from_angle(UtilityFunctions::randf_range(0, Math_TAU)) * 10;
 }
 
 void BoidEntity::render(Ref<Image> image) {
@@ -13,43 +13,70 @@ void BoidEntity::render(Ref<Image> image) {
 void BoidEntity::process(double delta, GameState& gameState) {
     Vector2 acceleration = Vector2();
 
-    gameState.processNearbyEntities(position, settings->groupRadius, [&] (Entity& e) {
-        if (&e == this) { return; }
+    // Boid-related forces
+    {
+        Vector2 groupPos = Vector2();
+        Vector2 groupVel = Vector2();
+        int groupSize = 0;
 
-        BoidEntity* boid = dynamic_cast<BoidEntity*>(&e);
-        if (!boid) { return; }
+        gameState.processNearbyEntities(position, settings->groupRadius, [&] (Entity& e) {
+            BoidEntity* boid = dynamic_cast<BoidEntity*>(&e);
+            if (!boid) { return; }
 
-        Vector2 diff = boid->position - position;
+            groupPos += boid->position;
+            groupVel += boid->velocity;
+            groupSize++;
+
+            Vector2 diff = boid->position - position;
+            double distSquared = diff.length_squared();
+            if (Math::is_zero_approx(distSquared)) { return; }
+
+            // Separation
+            acceleration += -diff * (1 / distSquared) * settings->separationWeight; // Proportional to 1/distance
+        });
+
+        groupPos /= groupSize;
+        groupVel /= groupSize;
+
+        Vector2 diff = groupPos - position;
         double distSquared = diff.length_squared();
+        double dist = Math::sqrt(distSquared);
 
-        if (Math::is_zero_approx(distSquared)) { return; }
+        if (!Math::is_zero_approx(distSquared)) {
+            // TODO: make attenuation controllable?
 
-        // TODO: make attenuation controllable?
+            // Cohesion
+            acceleration += diff * settings->cohesionWeight; // Proportional to distance
 
-        // Separation
-        acceleration += -diff * (1 / distSquared) * settings->separationWeight; // essentially proportional to 1/distance
+            // Alignment
+            acceleration += (groupVel - velocity) * settings->alignmentPercent; // Proportional to 1
 
-        // Alignment
-        acceleration += boid->velocity * settings->alignmentWeight;
+            // Drag
+            acceleration += -velocity * (1 - Math::pow(1 - settings->dragPercent, delta));
+        }
+    }
 
-        // Cohesion
-        acceleration += diff * settings->cohesionWeight; // essentially proportional to distance
-    });
+    // Tile-related forces
+    const Vector2i posI = position.round();
+    for (int x = -settings->tileRadius; x <= settings->tileRadius; ++x) {
+        for (int y = -settings->tileRadius; y <= settings->tileRadius; ++y) {
+            Vector2i pos = posI + Vector2i(x, y);
+            StringName mat = gameState.getTile(pos);
+            Ref<MaterialProperties> properties = gameState.getMaterialProperties(mat);
 
-    // Obstacle avoidance
-    // TODO: make the 3 tunable
-    for (int x = -3; x <= 3; ++x) {
-        for (int y = -3; y <= 3; ++y) {
-            Vector2i pos = Vector2i(position.round()) + Vector2i(x, y);
-            Ref<MaterialProperties> properties = gameState.getMaterialProperties(pos);
+            Vector2 diff = pos - position;
+            double distSquared = diff.length_squared();
+            double dist = Math::sqrt(distSquared);
+            if (Math::is_zero_approx(distSquared)) { continue; }
 
-            if (properties.is_null() || properties->isSolid()) {
-                Vector2 diff = pos - position;
-                double distSquared = diff.length_squared();
-                if (Math::is_zero_approx(distSquared)) { return; }
-
-                acceleration += -diff * (1 / distSquared) * settings->obstacleWeight;
+            double weight = 0;
+            if (settings->tileWeights.has(mat)) {
+                weight = double(settings->tileWeights[mat]); // Proportional to 1
+            } else if (!gameState.isInBounds(pos) || properties->isSolid()) {
+                weight = -settings->obstacleWeight * (1 / distSquared ); // Proportional to 1/distance^2
             }
+
+            acceleration += diff * (1 / dist) * weight;
         }
     }
 
@@ -59,6 +86,20 @@ void BoidEntity::process(double delta, GameState& gameState) {
     velocity = velocity.limit_length(settings->maxSpeed);
 
     position += velocity * delta;
-    position = position.clamp({0,0}, gameState.getDimensions());
+    position = position.clamp({0,0}, gameState.getDimensions() - Vector2i(1,1));
+
+    // TODO: make this configurable
+    if (getCurrentTile(gameState) == StringName("food")) {
+        gameState.setTile(position.round(), "");
+    }
+
     // TODO: prevent running into obstacles or out of water
+    double amount = velocity.length() * delta;
+    Vector2 dir = velocity.normalized();
+    while (!Math::is_zero_approx(amount) && gameState.getMaterialProperties(getCurrentTile(gameState))->isSolid()) {
+        double sub = Math::min(amount, 1.0);
+        position -= dir * sub;
+        velocity *= -settings->bouncePercent;
+        amount -= sub;
+    }
 }

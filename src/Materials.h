@@ -10,7 +10,7 @@ struct MaterialProperties : public Resource {
         EMPTY,
         STATIC,
         GRAVITY,
-        FLUID,
+        FLUID
     } type = EMPTY;
 
     // Could add density or something
@@ -54,6 +54,7 @@ public:
         mat.properties["water"] = MaterialProperties::makeMaterial(Color{"#4d8cc4", 0.3}, MaterialProperties::FLUID);
         mat.properties["wood"]  = MaterialProperties::makeMaterial(Color{"#543a06", 1.0}, MaterialProperties::STATIC);
         mat.properties["sand"]  = MaterialProperties::makeMaterial(Color{"#d1a62e", 1.0}, MaterialProperties::GRAVITY);
+        mat.properties["food"]  = MaterialProperties::makeMaterial(Color{"#07ab22", 1.0}, MaterialProperties::GRAVITY);
 
         return mat;
     }

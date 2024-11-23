@@ -4,6 +4,10 @@
 #include "BoidEntity.h"
 
 
+StringName Entity::getCurrentTile(GameState& gameState) {
+    return gameState.getTile(position.round());
+}
+
 GameState::GameState(int width, int height, Materials materials, double simSpeed)
         : grid(width, height), materials(materials), simSpeed(simSpeed) {
 
@@ -14,23 +18,36 @@ GameState::GameState(int width, int height, Materials materials, double simSpeed
         for (int y = 10; y < 30; y++) {
             grid[x, y] = "water";
         }
-        for (int y = 40; y < 45; y++) {
+        for (int y = 30; y < 35; y++) {
             grid[x, y] = "sand";
         }
     }
+    grid[10, 49] = "food";
+    grid[15, 49] = "food";
+    grid[20, 49] = "food";
 
     BoidSettings* settings = new BoidSettings{
-        Color{"#ff0000", 1.0},
-        10.0,
-        5.0,
-        3.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0
+        .color = Color{"#ff0000", 1.0},
+        .groupRadius = 10.0,
+        .tileRadius = 10,
+        .maxSpeed = 50,
+        .maxAccel = 50,
+        .dragPercent = 0.2,
+        .bouncePercent = 0.2,
+        .separationWeight = 10.0,
+        .alignmentPercent = 0.3,
+        .cohesionWeight = 6.0,
+        .obstacleWeight = 2.0,
+        .tileWeights = Dictionary(),
     };
 
-    entities.push_back(new BoidEntity(Vector2(25, 25), settings));
+    settings->tileWeights["food"] = 10.0;
+    settings->tileWeights.make_read_only();
+
+    entities.push_back(new BoidEntity(Vector2(25, 45), settings));
+    entities.push_back(new BoidEntity(Vector2(25, 48), settings));
+    entities.push_back(new BoidEntity(Vector2(28, 45), settings));
+    entities.push_back(new BoidEntity(Vector2(28, 48), settings));
 }
 
 void GameState::generateFrame(Ref<Image> image) {
@@ -72,12 +89,4 @@ void GameState::processNearbyEntities(Vector2 position, double radius, const std
             callback(*e);
         }
     }
-}
-
-Ref<MaterialProperties> GameState::getMaterialProperties(Vector2i pos) {
-    if (pos.x < 0 || pos.x >= grid.width || pos.y < 0 || pos.y >= grid.height) {
-        return nullptr;
-    }
-
-    return materials.getProperties(grid[pos.x, pos.y]);
 }

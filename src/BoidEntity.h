@@ -8,13 +8,20 @@ struct BoidSettings {
     Color color;
 
     double groupRadius;
+    int tileRadius;
+
     double maxSpeed;
     double maxAccel;
 
+    double dragPercent;
+    double bouncePercent;
+
     double separationWeight;
-    double alignmentWeight;
+    double alignmentPercent;
     double cohesionWeight;
+
     double obstacleWeight;
+    Dictionary tileWeights;
 };
 
 class BoidEntity : public Entity {

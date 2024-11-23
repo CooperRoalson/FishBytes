@@ -13,6 +13,11 @@ struct Grid {
         return data[y * width + x];
     }
 
+    const StringName& operator[](int x, int y) const {
+        assert(x >= 0 && x < width && y >= 0 && y < height);
+        return data[y * width + x];
+    }
+
     Grid(int width, int height) : width(width), height(height) {
         data = new StringName[width * height];
     }
@@ -36,6 +41,7 @@ public:
     virtual void process(double delta, GameState& gameState) = 0;
 
     Vector2 getPosition() { return position; }
+    StringName getCurrentTile(GameState& gameState);
 };
 
 class GameState {
@@ -63,9 +69,30 @@ public:
     // Could maybe be parallelized?
     void processNearbyEntities(Vector2 position, double radius, const std::function<void(Entity&)>& callback);
 
-    Ref<MaterialProperties> getMaterialProperties(Vector2i pos);
+    Ref<MaterialProperties> getMaterialProperties(StringName mat) {
+        return materials.getProperties(mat);
+    }
 
-    Vector2i getDimensions() const { return {grid.width, grid.height}; }
+    Vector2i getDimensions() const {
+        return {grid.width, grid.height};
+    }
+
+    bool isInBounds(Vector2i pos) const {
+        return pos.x >= 0 && pos.x < grid.width && pos.y >= 0 && pos.y < grid.height;
+    }
+
+    StringName getTile(Vector2i const& pos) const {
+        if (isInBounds(pos)) {
+            return grid[pos.x, pos.y];
+        }
+        return "";
+    }
+
+    void setTile(Vector2i pos, StringName str) {
+        if (isInBounds(pos)) {
+            grid[pos.x, pos.y] = str;
+        }
+    }
 };
 
 
