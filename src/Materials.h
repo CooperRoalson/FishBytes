@@ -29,11 +29,11 @@ public:
     }
 
     bool isFluid() const {
-        return type == FLUID || type == EMPTY;
+        return type == FLUID;
     }
 
     bool isSolid() const {
-        return !isFluid();
+        return type == STATIC || type == GRAVITY;
     }
 };
 

@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
+import os
+import sys
+
 env = SConscript("godot-cpp/SConstruct")
 
-env.Append(CXXFLAGS='-std=c++2b')
+env.Append(CXXFLAGS='-std=c++23')
+SetOption('experimental', 'ninja')
 
 # Generate compilation database
 env.Tool('compilation_db')

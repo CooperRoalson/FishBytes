@@ -14,17 +14,21 @@ GameState::GameState(int width, int height, Materials materials, double simSpeed
     // TODO: load default grid
 
     // TESTING:
-    for (int x = 0; x < 50; ++x) {
-        for (int y = 10; y < 30; y++) {
-            grid[x, y] = "water";
-        }
-        for (int y = 30; y < 35; y++) {
+    for (int x = 0; x < 25; ++x) {
+        for (int y = 40; y < 50; y++) {
             grid[x, y] = "sand";
         }
     }
     grid[10, 49] = "food";
     grid[15, 49] = "food";
     grid[20, 49] = "food";
+
+    for (int y = 10; y < 20; y++) {
+        for (int x = 10; x < 50; ++x) {
+            grid[x, y] = "water";
+        }
+    }
+    grid[20, 21] = "water";
 
     BoidSettings* settings = new BoidSettings{
         .color = Color{"#ff0000", 1.0},

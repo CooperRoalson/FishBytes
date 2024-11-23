@@ -4,6 +4,7 @@
 // Credit to Rob Mayoff for compiling this list
 
 #include <cassert>
+#include <functional>
 
 #include <godot_cpp/core/builtin_ptrcall.hpp>
 #include <godot_cpp/core/object_id.hpp>

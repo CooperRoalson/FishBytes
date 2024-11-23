@@ -1,15 +1,25 @@
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
 
+#include <bitset>
+
 #include "godot_includes.h"
 #include "Materials.h"
 
+struct Pixel {
+    StringName material;
+};
+
 struct Grid {
-    StringName* data;
+    std::vector<StringName> data;
+    std::vector<bool> updated;
     int width, height;
 
-    StringName& operator[](int x, int y) {
-        assert(x >= 0 && x < width && y >= 0 && y < height);
+    StringName& operator[](const int x, const int y) {
+        if(x < 0 || x >= width && y < 0 && y >= height) {
+            UtilityFunctions::printerr("Accessing invalid tile ", x, ", ", y);
+            assert(false);
+        }
         return data[y * width + x];
     }
 
@@ -18,12 +28,32 @@ struct Grid {
         return data[y * width + x];
     }
 
-    Grid(int width, int height) : width(width), height(height) {
-        data = new StringName[width * height];
+    bool wasUpdated(const int x, const int y) {
+        return updated[y * width + x] && (*this)[x,y] != StringName("");
     }
 
-    ~Grid() {
-        delete[] data;
+    void setUpdated(const int x, const int y) {
+        updated[y * width + x] = true;
+    }
+
+    void finalizeUpdate() {
+        for (auto && i : updated) {
+            i = false;
+        }
+    }
+
+    void swapTiles(const int x1, const int y1, const int x2, const int y2) {
+        assert(x1 >= 0 && x1 < width && y1 >= 0 && y1 < height);
+        assert(x2 >= 0 && x2 < width && y2 >= 0 && y2 < height);
+        auto temp = (*this)[x1, y1];
+        (*this)[x1, y1] = (*this)[x2, y2];
+        (*this)[x2, y2] = temp;
+        setUpdated(x1, y1);
+        setUpdated(x2, y2);
+    }
+
+    Grid(const int width, const int height) : width(width), height(height), data(width * height), updated(width * height) {
+        // data = new StringName[width * height];
     }
 };
 
