@@ -33,11 +33,11 @@ void GameManager::_ready() {
         return;
     }
 
-    gameState = std::make_unique<GameState>(width, height, Materials::defaultMaterials(), simSpeed);
+    gameState = std::make_unique<GameState>(width, height, Materials::defaultMaterials(), Entities::defaultEntities(), simSpeed);
 
     selectionMenu = get_node<SelectionMenu>("%SelectionMenu");
     DEV_ASSERT(selectionMenu);
-    selectionMenu->setMaterials(gameState->getMaterials());
+    selectionMenu->setContents(gameState->getMaterials(), gameState->getEntities());
 
     canvas = get_node<MeshInstance2D>("%Canvas");
     DEV_ASSERT(canvas);
@@ -56,27 +56,44 @@ void GameManager::_physics_process(double delta) {
         return;
     }
 
-    DEV_ASSERT(image.is_valid());
     handleMouseInput(delta);
     gameState->process(delta);
-    gameState->generateFrame(image);
+}
 
+void GameManager::_process(double delta) {
+    if (Engine::get_singleton()->is_editor_hint()) {
+        return;
+    }
+
+    DEV_ASSERT(image.is_valid());
+    gameState->generateFrame(image);
     Ref<ImageTexture> texture = canvas->get_texture();
     DEV_ASSERT(texture.is_valid());
     texture->set_image(image);
 }
 
 void GameManager::handleMouseInput(double delta) {
-    if (Input::get_singleton()->is_mouse_button_pressed(MOUSE_BUTTON_LEFT)) {
+    bool wasMouseDown = isMouseDown;
+    isMouseDown = Input::get_singleton()->is_mouse_button_pressed(MOUSE_BUTTON_LEFT);
+
+    if (isMouseDown) {
         double brushRadius = selectionMenu->getBrushRadius() - 1;
         double brushDensity = selectionMenu->getBrushDensity();
-        bool autoFill = brushDensity >= brushRadius || brushDensity > 3.5;;
+        bool autoFill = brushDensity >= brushRadius || brushDensity > 3.5;
+        StringName type = selectionMenu->getSelected();
 
         Vector2 localMousePos = canvas->get_local_mouse_position();
         localMousePos = Vector2(localMousePos.x + 0.5, 1 - (localMousePos.y + 0.5));
         Vector2i mousePos = (localMousePos * Vector2(width, height)).round();
 
         if (mousePos.x < 0 || mousePos.y < 0 || mousePos.x >= width || mousePos.y >= height) {
+            return;
+        }
+
+        if (selectionMenu->isEntitySelected()) {
+            if (!wasMouseDown) {
+                gameState->spawnEntity(mousePos, type);
+            }
             return;
         }
 
@@ -88,7 +105,7 @@ void GameManager::handleMouseInput(double delta) {
 
                 if (autoFill || UtilityFunctions::randf() < brushDensity * delta) {
                     Vector2i pos = mousePos + Vector2i(x, y);
-                    gameState->setTile(pos, selectionMenu->getSelected());
+                    gameState->setTile(pos, type);
                 }
             }
         }

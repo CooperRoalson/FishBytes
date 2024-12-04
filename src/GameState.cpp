@@ -3,13 +3,28 @@
 #include "MaterialSimulator.h"
 #include "BoidEntity.h"
 
+Entity* Entity::instantiateEntity(Ref<EntityProperties> properties, Vector2 position) {
+    switch (properties->type) {
+        case EntityProperties::STATIC:
+            return new Entity(properties, position);
+        case EntityProperties::BOID:
+            return new BoidEntity(properties, position);
+        default:
+            DEV_ASSERT(false);
+    }
+}
+
+void Entity::render(Ref<Image> image) {
+    Vector2i pos = position.round();
+    image->set_pixel(pos.x, pos.y, properties->color);
+}
 
 StringName Entity::getCurrentTile(GameState& gameState) {
     return gameState.getTile(position.round());
 }
 
-GameState::GameState(int width, int height, Materials materials, double simSpeed)
-        : grid(width, height), materials(materials), simSpeed(simSpeed) {
+GameState::GameState(int width, int height, Materials materials, Entities entities, double simSpeed)
+        : grid(width, height), materials(materials), entities(entities), simSpeed(simSpeed) {
 
     // TODO: load default grid
 
@@ -30,28 +45,11 @@ GameState::GameState(int width, int height, Materials materials, double simSpeed
     }
     grid[20, 21] = "water";
 
-    BoidSettings* settings = new BoidSettings{
-        .color = Color{"#ff0000", 1.0},
-        .groupRadius = 10.0,
-        .tileRadius = 10,
-        .maxSpeed = 50,
-        .maxAccel = 50,
-        .dragPercent = 0.2,
-        .bouncePercent = 0.2,
-        .separationWeight = 10.0,
-        .alignmentPercent = 0.3,
-        .cohesionWeight = 6.0,
-        .obstacleWeight = 2.0,
-        .tileWeights = Dictionary(),
-    };
-
-    settings->tileWeights["food"] = 10.0;
-    settings->tileWeights.make_read_only();
-
-    entities.push_back(new BoidEntity(Vector2(25, 45), settings));
-    entities.push_back(new BoidEntity(Vector2(25, 48), settings));
-    entities.push_back(new BoidEntity(Vector2(28, 45), settings));
-    entities.push_back(new BoidEntity(Vector2(28, 48), settings));
+    Ref<BoidProperties> boidProps = entities.getProperties("boid");;
+    entityInstances.push_back(new BoidEntity(boidProps, Vector2(25, 45)));
+    entityInstances.push_back(new BoidEntity(boidProps, Vector2(25, 48)));
+    entityInstances.push_back(new BoidEntity(boidProps, Vector2(28, 45)));
+    entityInstances.push_back(new BoidEntity(boidProps, Vector2(28, 48)));
 }
 
 void GameState::generateFrame(Ref<Image> image) {
@@ -66,7 +64,7 @@ void GameState::generateFrame(Ref<Image> image) {
     }
 
     // Draw entities
-    for (auto& e : entities) {
+    for (auto& e : entityInstances) {
         e->render(image);
     }
 }
@@ -81,14 +79,14 @@ void GameState::process(double delta) {
     }
 
     // Process entities
-    for (auto& e : entities) {
+    for (auto& e : entityInstances) {
         e->process(delta, *this);
     }
 }
 
 void GameState::processNearbyEntities(Vector2 position, double radius, const std::function<void(Entity&)>& callback) {
     // Could use spatial partition
-    for (auto& e : entities) {
+    for (auto& e : entityInstances) {
         if ((e->getPosition() - position).length_squared() <= radius * radius) {
             callback(*e);
         }

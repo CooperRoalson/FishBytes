@@ -15,6 +15,8 @@ class GameManager : public Node2D {
     int width = 50, height = 50;
     double simSpeed = 14.0;
 
+    bool isMouseDown = false;
+
     MeshInstance2D* canvas = nullptr;
     Ref<Image> image;
 
@@ -25,6 +27,7 @@ protected:
 
 public:
     void _ready() override;
+    void _process(double p_delta) override;
     void _physics_process(double delta) override;
 
     void set_width(int p_width);

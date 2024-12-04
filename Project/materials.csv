@@ -1,0 +1,5 @@
+Name, Color,Alpha, Type
+water,#4d8cc4,0.3,FLUID
+wood,#543a0,1.0,STATIC
+sand,#d1a62e,1.0,GRAVITY
+food,#07ab22,1.0,GRAVITY

@@ -3,6 +3,7 @@
 
 #include <bitset>
 
+#include "Entities.h"
 #include "godot_includes.h"
 #include "Materials.h"
 
@@ -61,31 +62,43 @@ class GameState;
 
 class Entity {
 protected:
+    Ref<EntityProperties> properties;
     Vector2 position;
 
+    Entity(Ref<EntityProperties> properties, Vector2 position) : properties(properties), position(position) {}
+
 public:
-    explicit Entity(Vector2 position) : position(position) {}
     virtual ~Entity() = default;
 
-    virtual void render(Ref<Image> image) = 0;
-    virtual void process(double delta, GameState& gameState) = 0;
+    static Entity* instantiateEntity(Ref<EntityProperties> properties, Vector2 position);
+
+    virtual void render(Ref<Image> image);
+    virtual void process(double delta, GameState& gameState) {}
 
     Vector2 getPosition() { return position; }
     StringName getCurrentTile(GameState& gameState);
+
 };
 
 class GameState {
     Materials materials;
+    Entities entities;
 
     Grid grid;
-    std::vector<Entity*> entities;
+    std::vector<Entity*> entityInstances;
 
     double simSpeed;
     double timeSinceLastFrame = 0.0;
 
 public:
 
-    GameState(int width, int height, Materials materials, double simSpeed);
+    GameState(int width, int height, Materials materials, Entities entities, double simSpeed);
+
+    ~GameState() {
+        for (auto* e : entityInstances) {
+            delete e;
+        }
+    }
 
     void setSimSpeed(double speed) {
         simSpeed = speed;
@@ -118,15 +131,29 @@ public:
         return "";
     }
 
-    void setTile(Vector2i pos, StringName str) {
+    void setTile(Vector2i pos, StringName type) {
         if (isInBounds(pos)) {
-            grid[pos.x, pos.y] = str;
+            if (materials.getProperties(type).is_null()) {
+                UtilityFunctions::printerr("Invalid mateiral type: ", type);
+                return;
+            }
+            grid[pos.x, pos.y] = type;
         }
     }
 
-    Materials& getMaterials() {
-        return materials;
+    void spawnEntity(Vector2i pos, StringName type) {
+        if (isInBounds(pos)) {
+            auto properties = entities.getProperties(type);
+            if (properties.is_null()) {
+                UtilityFunctions::printerr("Invalid entity type: ", type);
+                return;
+            }
+            entityInstances.push_back(Entity::instantiateEntity(properties, pos));
+        }
     }
+
+    Materials& getMaterials() { return materials; }
+    Entities& getEntities() { return entities; }
 };
 
 

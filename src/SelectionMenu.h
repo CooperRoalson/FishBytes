@@ -3,12 +3,13 @@
 
 #include "godot_includes.h"
 #include "Materials.h"
+#include "Entities.h"
 
 class SelectionMenu : public Control {
     GDCLASS(SelectionMenu, Control)
 
-    GridContainer* tiles = nullptr;
-    GridContainer* entities = nullptr;
+    GridContainer* tileGrid = nullptr;
+    GridContainer* entityGrid = nullptr;
     Label* selectedLabel = nullptr;
 
     Vector2i buttonSize;
@@ -16,13 +17,14 @@ class SelectionMenu : public Control {
     Ref<StyleBoxFlat> unselectedStyle;
 
     Button* selectedButton = nullptr;
-    StringName selected;
+    StringName selected = "";
+    bool entitySelected = false;
 
     Slider* brushRadiusSlider = nullptr;
     Slider* brushDensitySlider = nullptr;
 
-    String getMatName(StringName mat) {
-        return mat.is_empty() ? "Air" : mat.capitalize();
+    String stylizeName(StringName name) {
+        return name.is_empty() ? "Air" : name.capitalize();
     }
 
 protected:
@@ -31,11 +33,9 @@ protected:
 public:
     void _ready() override;
 
-    StringName getSelected() const { return selected; }
+    void setContents(Materials& materials, Entities& entities);
 
-    void setMaterials(Materials& materials);
-
-    void onButtonPressed(Button* button, StringName mat) {
+    void onButtonPressed(Button* button, StringName name, bool isEntity) {
         Ref<StyleBoxFlat> style = selectedStyle->duplicate();
         Ref<StyleBoxFlat> oldStyle = button->get_theme_stylebox("normal");
         style->set_bg_color(oldStyle->get_bg_color());
@@ -53,15 +53,16 @@ public:
         }
 
         selectedButton = button;
-        selected = mat;
+        selected = name;
+        entitySelected = isEntity;
     }
 
-    void onButtonHovered(StringName mat) {
-        selectedLabel->set_text(getMatName(mat));
+    void onButtonHovered(StringName name) {
+        selectedLabel->set_text(stylizeName(name));
     }
 
     void onButtonExited() {
-        selectedLabel->set_text(getMatName(selected));
+        selectedLabel->set_text(stylizeName(selected));
     }
 
     double getBrushRadius() const {
@@ -71,6 +72,10 @@ public:
     double getBrushDensity() const {
         return brushDensitySlider->get_value();
     }
+
+    StringName getSelected() const { return selected; }
+
+    bool isEntitySelected() const { return entitySelected; }
 };
 
 

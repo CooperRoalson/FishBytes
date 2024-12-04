@@ -15,18 +15,8 @@ struct MaterialProperties : public Resource {
 
     // Could add density or something
 
-protected:
     MaterialProperties() = default;
     MaterialProperties(Color color, MaterialType type) : color(color), type(type) {}
-
-public:
-    static Ref<MaterialProperties> makeMaterial(Color c, MaterialType type) {
-        return {memnew(MaterialProperties(c, type))};
-    }
-
-    static Ref<MaterialProperties> makeEmptyMaterial() {
-        return {memnew(MaterialProperties())};
-    }
 
     bool isFluid() const {
         return type == FLUID;
@@ -53,11 +43,11 @@ public:
     static Materials defaultMaterials() {
         Materials mat;
 
-        mat.properties[""]      = MaterialProperties::makeEmptyMaterial();
-        mat.properties["water"] = MaterialProperties::makeMaterial(Color{"#4d8cc4", 0.3}, MaterialProperties::FLUID);
-        mat.properties["wood"]  = MaterialProperties::makeMaterial(Color{"#543a06", 1.0}, MaterialProperties::STATIC);
-        mat.properties["sand"]  = MaterialProperties::makeMaterial(Color{"#d1a62e", 1.0}, MaterialProperties::GRAVITY);
-        mat.properties["food"]  = MaterialProperties::makeMaterial(Color{"#07ab22", 1.0}, MaterialProperties::GRAVITY);
+        mat.properties[""]      = {memnew(MaterialProperties)};
+        mat.properties["water"] = {memnew(MaterialProperties(Color{"#4d8cc4", 0.3}, MaterialProperties::FLUID))};
+        mat.properties["wood"]  = {memnew(MaterialProperties(Color{"#543a06", 1.0}, MaterialProperties::STATIC))};
+        mat.properties["sand"]  = {memnew(MaterialProperties(Color{"#d1a62e", 1.0}, MaterialProperties::GRAVITY))};
+        mat.properties["food"]  = {memnew(MaterialProperties(Color{"#07ab22", 1.0}, MaterialProperties::GRAVITY))};
 
         return mat;
     }
