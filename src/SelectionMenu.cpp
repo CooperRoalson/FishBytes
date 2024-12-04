@@ -34,6 +34,12 @@ void SelectionMenu::_ready() {
     unselectedStyle = unselected->get_theme_stylebox("normal");
     DEV_ASSERT(unselectedStyle.is_valid());
     unselected->queue_free();
+
+    brushRadiusSlider = get_node<Slider>("%Radius Slider");
+    DEV_ASSERT(brushRadiusSlider);
+
+    brushDensitySlider = get_node<Slider>("%Density Slider");
+    DEV_ASSERT(brushDensitySlider);
 }
 
 void SelectionMenu::setMaterials(Materials& materials) {

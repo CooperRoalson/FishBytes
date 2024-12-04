@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://cyw6fjwn2j08q"]
+[gd_scene load_steps=8 format=3 uid="uid://cyw6fjwn2j08q"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r0sv3"]
 bg_color = Color(0.442836, 0.598377, 0.88283, 1)
@@ -47,6 +47,12 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
+
+[sub_resource type="SystemFont" id="SystemFont_fpdin"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_4bks4"]
+font = SubResource("SystemFont_fpdin")
+font_color = Color(0, 0, 0, 1)
 
 [node name="SelectionMenu" type="SelectionMenu"]
 offset_right = 40.0
@@ -104,9 +110,39 @@ columns = 4
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_r0sv3")
 
-[node name="Selected Label" type="Label" parent="VBoxContainer/Panel2"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Panel2"]
+layout_mode = 2
+
+[node name="Selected Label" type="Label" parent="VBoxContainer/Panel2/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Air"
 label_settings = SubResource("LabelSettings_77542")
 horizontal_alignment = 1
+
+[node name="Radius Label" type="Label" parent="VBoxContainer/Panel2/VBoxContainer"]
+layout_mode = 2
+text = "Brush Radius"
+label_settings = SubResource("LabelSettings_4bks4")
+horizontal_alignment = 1
+
+[node name="Radius Slider" type="HSlider" parent="VBoxContainer/Panel2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 10.0
+value = 4.0
+tick_count = 10
+
+[node name="Density Label" type="Label" parent="VBoxContainer/Panel2/VBoxContainer"]
+layout_mode = 2
+text = "Brush Density"
+label_settings = SubResource("LabelSettings_4bks4")
+horizontal_alignment = 1
+
+[node name="Density Slider" type="HSlider" parent="VBoxContainer/Panel2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 4.0
+step = 0.1
+value = 1.0

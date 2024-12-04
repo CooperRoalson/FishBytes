@@ -18,6 +18,9 @@ class SelectionMenu : public Control {
     Button* selectedButton = nullptr;
     StringName selected;
 
+    Slider* brushRadiusSlider = nullptr;
+    Slider* brushDensitySlider = nullptr;
+
     String getMatName(StringName mat) {
         return mat.is_empty() ? "Air" : mat.capitalize();
     }
@@ -59,6 +62,14 @@ public:
 
     void onButtonExited() {
         selectedLabel->set_text(getMatName(selected));
+    }
+
+    double getBrushRadius() const {
+        return brushRadiusSlider->get_value();
+    }
+
+    double getBrushDensity() const {
+        return brushDensitySlider->get_value();
     }
 };
 

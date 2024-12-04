@@ -14,14 +14,6 @@ void GameManager::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_sim_speed", "p_speed"), &GameManager::set_sim_speed);
     ClassDB::bind_method(D_METHOD("get_sim_speed"), &GameManager::get_sim_speed);
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "sim_speed", PROPERTY_HINT_RANGE, "0.1, 20, or_greater"), "set_sim_speed", "get_sim_speed");
-
-    ClassDB::bind_method(D_METHOD("set_brush_radius", "p_radius"), &GameManager::set_brush_radius);
-    ClassDB::bind_method(D_METHOD("get_brush_radius"), &GameManager::get_brush_radius);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "brush_radius", PROPERTY_HINT_RANGE, "1, 10, or_greater"), "set_brush_radius", "get_brush_radius");
-
-    ClassDB::bind_method(D_METHOD("set_brush_density", "p_density"), &GameManager::set_brush_density);
-    ClassDB::bind_method(D_METHOD("get_brush_density"), &GameManager::get_brush_density);
-    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "brush_density", PROPERTY_HINT_RANGE, "0, 2, or_greater"), "set_brush_density", "get_brush_density");
 }
 
 void GameManager::set_width(int p_width) { width = p_width; }
@@ -35,12 +27,6 @@ void GameManager::set_sim_speed(double p_speed) {
     if (gameState) { gameState->setSimSpeed(simSpeed); }
 }
 double GameManager::get_sim_speed() const { return simSpeed; }
-
-void GameManager::set_brush_radius(int p_radius) { brushRadius = p_radius; }
-int GameManager::get_brush_radius() const { return brushRadius; }
-
-void GameManager::set_brush_density(double p_density) { brushDensity = p_density; }
-double GameManager::get_brush_density() const { return brushDensity; }
 
 void GameManager::_ready() {
     if (Engine::get_singleton()->is_editor_hint()) {
@@ -82,6 +68,10 @@ void GameManager::_physics_process(double delta) {
 
 void GameManager::handleMouseInput(double delta) {
     if (Input::get_singleton()->is_mouse_button_pressed(MOUSE_BUTTON_LEFT)) {
+        double brushRadius = selectionMenu->getBrushRadius() - 1;
+        double brushDensity = selectionMenu->getBrushDensity();
+        bool autoFill = brushDensity >= brushRadius || brushDensity > 3.5;;
+
         Vector2 localMousePos = canvas->get_local_mouse_position();
         localMousePos = Vector2(localMousePos.x + 0.5, 1 - (localMousePos.y + 0.5));
         Vector2i mousePos = (localMousePos * Vector2(width, height)).round();
@@ -96,7 +86,7 @@ void GameManager::handleMouseInput(double delta) {
                     continue;
                 }
 
-                if (UtilityFunctions::randf() < brushDensity * delta) {
+                if (autoFill || UtilityFunctions::randf() < brushDensity * delta) {
                     Vector2i pos = mousePos + Vector2i(x, y);
                     gameState->setTile(pos, selectionMenu->getSelected());
                 }
