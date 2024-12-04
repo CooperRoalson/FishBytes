@@ -15,8 +15,13 @@ class GameManager : public Node2D {
     int width = 50, height = 50;
     double simSpeed = 14.0;
 
-    Ref<ImageTexture> texture;
+    int brushRadius = 3;
+    double brushDensity = 1.5;
+
+    MeshInstance2D* canvas = nullptr;
     Ref<Image> image;
+
+    void handleMouseInput(double delta);
 
 protected:
     static void _bind_methods();
@@ -31,6 +36,10 @@ public:
     int get_height() const;
     void set_sim_speed(double p_speed);
     double get_sim_speed() const;
+    void set_brush_radius(int p_radius);
+    int get_brush_radius() const;
+    void set_brush_density(double p_density);
+    double get_brush_density() const;
 };
 
 
