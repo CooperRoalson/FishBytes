@@ -42,6 +42,9 @@ class Materials {
     Dictionary properties;
 
 public:
+    Array getAllMaterials() {
+        return properties.keys();
+    }
 
     Ref<MaterialProperties> getProperties(const StringName& mat) {
         return properties[mat];

@@ -3,15 +3,17 @@
 
 #include "GameState.h"
 #include "godot_includes.h"
-#include "Materials.h"
+#include "SelectionMenu.h"
 
 class GameManager : public Node2D {
     GDCLASS(GameManager, Node2D)
 
+    SelectionMenu* selectionMenu = nullptr;
+
     std::unique_ptr<GameState> gameState;
 
     int width = 50, height = 50;
-    double simSpeed = 8.0;
+    double simSpeed = 14.0;
 
     Ref<ImageTexture> texture;
     Ref<Image> image;

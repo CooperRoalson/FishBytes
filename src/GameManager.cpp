@@ -36,8 +36,14 @@ void GameManager::_ready() {
 
     gameState = std::make_unique<GameState>(width, height, Materials::defaultMaterials(), simSpeed);
 
-    texture = get_node<MeshInstance2D>("%Canvas")->get_texture();
-    assert(texture.is_valid());
+    selectionMenu = get_node<SelectionMenu>("%SelectionMenu");
+    DEV_ASSERT(selectionMenu);
+    selectionMenu->setMaterials(gameState->getMaterials());
+
+    auto canvas = get_node<MeshInstance2D>("%Canvas");
+    DEV_ASSERT(canvas);
+    texture = canvas->get_texture();
+    DEV_ASSERT(texture.is_valid());
 
     PackedByteArray arr;
     arr.resize(4);
@@ -53,7 +59,7 @@ void GameManager::_physics_process(double delta) {
         return;
     }
 
-    assert(image.is_valid);
+    DEV_ASSERT(image.is_valid());
     gameState->process(delta);
     gameState->generateFrame(image);
     texture->set_image(image);

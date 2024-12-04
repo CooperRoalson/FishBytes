@@ -16,7 +16,7 @@ void MaterialSimulator::process(Grid &grid, Materials &materials) {
 void MaterialSimulator::processTile(Grid &grid, int x, int y, Materials &materials) {
     auto mat = grid[x, y];
 
-    if (mat == String("")) {
+    if (mat.is_empty()) {
         return;
     }
 

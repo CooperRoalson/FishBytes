@@ -83,7 +83,7 @@ custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_rrjca")
 
-[node name="Unselected ButtonPanel" type="Button" parent="VBoxContainer/Panel/VBoxContainer/Tiles"]
+[node name="Unselected Button" type="Button" parent="VBoxContainer/Panel/VBoxContainer/Tiles"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2

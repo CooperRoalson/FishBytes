@@ -1,20 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://t40j5uqimdss"]
+[gd_scene load_steps=4 format=3 uid="uid://t40j5uqimdss"]
+
+[ext_resource type="PackedScene" uid="uid://cyw6fjwn2j08q" path="res://selection_menu.tscn" id="1_4axfn"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_7o4oo"]
 
 [sub_resource type="ImageTexture" id="ImageTexture_ldwnh"]
 
 [node name="Main" type="GameManager"]
-_import_path = NodePath("")
-unique_name_in_owner = false
-process_mode = 0
-process_priority = 0
-process_physics_priority = 0
-process_thread_group = 0
-physics_interpolation_mode = 0
-auto_translate_mode = 0
-editor_description = ""
-script = null
 
 [node name="Border" type="ColorRect" parent="."]
 offset_left = 344.0
@@ -37,3 +29,10 @@ position = Vector2(607, 326.25)
 scale = Vector2(500, 500)
 mesh = SubResource("QuadMesh_7o4oo")
 texture = SubResource("ImageTexture_ldwnh")
+
+[node name="SelectionMenu" parent="." instance=ExtResource("1_4axfn")]
+unique_name_in_owner = true
+offset_left = 92.0
+offset_top = 238.0
+offset_right = 132.0
+offset_bottom = 278.0

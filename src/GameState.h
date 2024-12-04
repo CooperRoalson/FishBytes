@@ -18,13 +18,13 @@ struct Grid {
     StringName& operator[](const int x, const int y) {
         if(x < 0 || x >= width && y < 0 && y >= height) {
             UtilityFunctions::printerr("Accessing invalid tile ", x, ", ", y);
-            assert(false);
+            DEV_ASSERT(false);
         }
         return data[y * width + x];
     }
 
     const StringName& operator[](int x, int y) const {
-        assert(x >= 0 && x < width && y >= 0 && y < height);
+        DEV_ASSERT(x >= 0 && x < width && y >= 0 && y < height);
         return data[y * width + x];
     }
 
@@ -43,8 +43,8 @@ struct Grid {
     }
 
     void swapTiles(const int x1, const int y1, const int x2, const int y2) {
-        assert(x1 >= 0 && x1 < width && y1 >= 0 && y1 < height);
-        assert(x2 >= 0 && x2 < width && y2 >= 0 && y2 < height);
+        DEV_ASSERT(x1 >= 0 && x1 < width && y1 >= 0 && y1 < height);
+        DEV_ASSERT(x2 >= 0 && x2 < width && y2 >= 0 && y2 < height);
         auto temp = (*this)[x1, y1];
         (*this)[x1, y1] = (*this)[x2, y2];
         (*this)[x2, y2] = temp;
@@ -122,6 +122,10 @@ public:
         if (isInBounds(pos)) {
             grid[pos.x, pos.y] = str;
         }
+    }
+
+    Materials& getMaterials() {
+        return materials;
     }
 };
 
