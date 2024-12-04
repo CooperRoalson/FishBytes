@@ -1,0 +1,112 @@
+[gd_scene load_steps=6 format=3 uid="uid://cyw6fjwn2j08q"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r0sv3"]
+bg_color = Color(0.442836, 0.598377, 0.88283, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.171039, 0.171039, 0.171039, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+expand_margin_left = 6.0
+expand_margin_top = 4.0
+expand_margin_right = 6.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="SystemFont" id="SystemFont_qffd0"]
+subpixel_positioning = 0
+
+[sub_resource type="LabelSettings" id="LabelSettings_77542"]
+font = SubResource("SystemFont_qffd0")
+font_size = 26
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rrjca"]
+bg_color = Color(0.999827, 0.304922, 0.256522, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.815686, 0.831373, 0.831373, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nvjvp"]
+bg_color = Color(1, 0.25098, 0.211765, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.127736, 0.127736, 0.127736, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="SelectionMenu" type="SelectionMenu"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 184.0
+offset_bottom = 272.0
+
+[node name="Panel" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_r0sv3")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Panel"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Tiles Label" type="Label" parent="VBoxContainer/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Tiles"
+label_settings = SubResource("LabelSettings_77542")
+horizontal_alignment = 1
+
+[node name="Tiles" type="GridContainer" parent="VBoxContainer/Panel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 4
+
+[node name="Selected Button" type="Button" parent="VBoxContainer/Panel/VBoxContainer/Tiles"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_rrjca")
+
+[node name="Unselected ButtonPanel" type="Button" parent="VBoxContainer/Panel/VBoxContainer/Tiles"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_nvjvp")
+
+[node name="Entities Label" type="Label" parent="VBoxContainer/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Entities"
+label_settings = SubResource("LabelSettings_77542")
+horizontal_alignment = 1
+
+[node name="Entities" type="GridContainer" parent="VBoxContainer/Panel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 4
+
+[node name="Panel2" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_r0sv3")
+
+[node name="Selected Label" type="Label" parent="VBoxContainer/Panel2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Air"
+label_settings = SubResource("LabelSettings_77542")
+horizontal_alignment = 1
