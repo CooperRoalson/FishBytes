@@ -50,7 +50,7 @@ void SelectionMenu::setContents(Materials& materials, Entities& entities) {
         StringName id = arr[i];
         bool isEntity = i >= numMats;
         Color color = isEntity ? entities.getProperties(id)->color : materials.getProperties(id)->color;
-        String name = isEntity ? id.capitalize() : materials.getProperties(id)->name;
+        String name = isEntity ? entities.getProperties(id)->name : materials.getProperties(id)->name;
 
         Button* button = memnew(Button);
 

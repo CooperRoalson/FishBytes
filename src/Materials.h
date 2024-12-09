@@ -45,7 +45,7 @@ class Materials {
     Dictionary properties;
 
 public:
-    Materials(String filePath);
+    Materials(Dictionary materials);
 
     Array getAllMaterials() {
         return properties.keys();

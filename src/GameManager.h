@@ -20,7 +20,7 @@ class GameManager : public Node2D {
     MeshInstance2D* canvas = nullptr;
     Ref<Image> image;
 
-    String materialsFile = "res://materials.json";
+    String configFile = "res://config.json";
 
     void handleMouseInput(double delta);
 
@@ -38,8 +38,8 @@ public:
     int get_height() const;
     void set_sim_speed(double p_speed);
     double get_sim_speed() const;
-    void set_materials_file(String p_file);
-    String get_materials_file() const;
+    void set_config_file(String p_file);
+    String get_config_file() const;
 };
 
 

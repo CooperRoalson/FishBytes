@@ -62,22 +62,25 @@ class GameState;
 
 class Entity {
 protected:
+    StringName type;
     Ref<EntityProperties> properties;
     Vector2 position;
+    bool dead = false;
 
-    Entity(Ref<EntityProperties> properties, Vector2 position) : properties(properties), position(position) {}
+    Entity(StringName type, Ref<EntityProperties> properties, Vector2 position) : type(type), properties(properties), position(position) {}
 
 public:
     virtual ~Entity() = default;
 
-    static Entity* instantiateEntity(Ref<EntityProperties> properties, Vector2 position);
+    static Entity* instantiateEntity(StringName type, Ref<EntityProperties> properties, Vector2 position);
 
     virtual void render(Ref<Image> image);
     virtual void process(double delta, GameState& gameState) {}
 
+    StringName getType() { return type; }
     Vector2 getPosition() { return position; }
     StringName getCurrentTile(GameState& gameState);
-
+    bool isDead() { return dead; }
 };
 
 class GameState {
@@ -148,7 +151,7 @@ public:
                 UtilityFunctions::printerr("Invalid entity type: ", type);
                 return;
             }
-            entityInstances.push_back(Entity::instantiateEntity(properties, pos));
+            entityInstances.push_back(Entity::instantiateEntity(type, properties, pos));
         }
     }
 

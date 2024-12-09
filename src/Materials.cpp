@@ -1,14 +1,12 @@
 #include "Materials.h"
 
-Materials::Materials(String filePath) {
+Materials::Materials(Dictionary materials) {
     properties[""]      = {memnew(MaterialProperties)};
 
-    Ref<JSON> json = ResourceLoader::get_singleton()->load(filePath, "JSON");
-    Dictionary d = json->get_data();
-    Array ids = d.keys();
+    Array ids = materials.keys();
     for (int i = 0; i < ids.size(); ++i) {
         String id = ids[i];
-        Dictionary mat = d[id];
+        Dictionary mat = materials[id];
 
         Ref<MaterialProperties> props = memnew(MaterialProperties);
         properties[id] = props;

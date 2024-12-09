@@ -6,9 +6,9 @@
 #include "Entities.h"
 
 struct BoidProperties : EntityProperties {
-    struct BoidSettings{
+    struct BoidConfig : Resource {
+        int visionRadius;
         double groupRadius;
-        int tileRadius;
 
         double maxSpeed;
         double maxAccel;
@@ -22,17 +22,17 @@ struct BoidProperties : EntityProperties {
 
         double obstacleWeight;
         Dictionary tileWeights;
-    } boidSettings;
+        Dictionary entityWeights;
+    };
 
-    BoidProperties() : EntityProperties(Color{"#000000", 1.0}, BOID) {}
-    BoidProperties(Color color, BoidSettings settings) : EntityProperties(color, BOID), boidSettings(settings) {}
+    Ref<BoidConfig> boidConfig;
 };
 
 class BoidEntity : public Entity {
     Vector2 velocity;
 
 public:
-    BoidEntity(Ref<EntityProperties> properties, Vector2 position);
+    BoidEntity(StringName type, Ref<EntityProperties> properties, Vector2 position);
 
     void process(double delta, GameState& gameState) override;
 };

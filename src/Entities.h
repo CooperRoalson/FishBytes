@@ -5,20 +5,32 @@
 
 struct EntityProperties : public Resource {
     Color color = Color{"#000000", 0.0};
+    String name;
     enum EntityType {
         STATIC,
         BOID
     }type = STATIC;
 
     EntityProperties() = default;
-    EntityProperties(Color color, EntityType type) : color(color), type(type) {}
+
+    static EntityType typeFromString(const String& str) {
+        if (str == "BOID") {
+            return BOID;
+        } else {
+            return STATIC;
+        }
+    }
 };
 
 
 class Entities {
     Dictionary properties;
 
+    Dictionary parseBoidConfigs(Dictionary boidData);
+
 public:
+    Entities(Dictionary entities, Dictionary entityConfig);
+
     Array getAllEntities() {
         return properties.keys();
     }
@@ -26,8 +38,6 @@ public:
     Ref<EntityProperties> getProperties(const StringName& entity) {
         return properties[entity];
     }
-
-    static Entities defaultEntities();
 };
 
 

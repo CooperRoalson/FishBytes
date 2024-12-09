@@ -3,12 +3,12 @@
 #include "MaterialSimulator.h"
 #include "BoidEntity.h"
 
-Entity* Entity::instantiateEntity(Ref<EntityProperties> properties, Vector2 position) {
+Entity* Entity::instantiateEntity(StringName type, Ref<EntityProperties> properties, Vector2 position) {
     switch (properties->type) {
         case EntityProperties::STATIC:
-            return new Entity(properties, position);
+            return new Entity(type, properties, position);
         case EntityProperties::BOID:
-            return new BoidEntity(properties, position);
+            return new BoidEntity(type, properties, position);
         default:
             DEV_ASSERT(false);
     }
@@ -26,30 +26,7 @@ StringName Entity::getCurrentTile(GameState& gameState) {
 GameState::GameState(int width, int height, Materials materials, Entities entities, double simSpeed)
         : grid(width, height), materials(materials), entities(entities), simSpeed(simSpeed) {
 
-    //v TODO: load default grid
-
-    // // TESTING:
-    // for (int x = 0; x < 25; ++x) {
-    //     for (int y = 40; y < 50; y++) {
-    //         grid[x, y] = "sand";
-    //     }
-    // }
-    // grid[10, 49] = "food";
-    // grid[15, 49] = "food";
-    // grid[20, 49] = "food";
-    //
-    // for (int y = 10; y < 20; y++) {
-    //     for (int x = 10; x < 50; ++x) {
-    //         grid[x, y] = "water";
-    //     }
-    // }
-    // grid[20, 21] = "water";
-    //
-    // Ref<BoidProperties> boidProps = entities.getProperties("boid");;
-    // entityInstances.push_back(new BoidEntity(boidProps, Vector2(25, 45)));
-    // entityInstances.push_back(new BoidEntity(boidProps, Vector2(25, 48)));
-    // entityInstances.push_back(new BoidEntity(boidProps, Vector2(28, 45)));
-    // entityInstances.push_back(new BoidEntity(boidProps, Vector2(28, 48)));
+    // TODO: load default grid
 }
 
 void GameState::generateFrame(Ref<Image> image) {
@@ -79,8 +56,13 @@ void GameState::process(double delta) {
     }
 
     // Process entities
-    for (auto& e : entityInstances) {
-        e->process(delta, *this);
+    for (int i = 0; i < entityInstances.size(); ++i) {
+        entityInstances[i]->process(delta, *this);
+        if (entityInstances[i]->isDead()) {
+            delete entityInstances[i];
+            entityInstances.erase(entityInstances.begin() + i);
+            --i;
+        }
     }
 }
 
