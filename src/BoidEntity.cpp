@@ -9,18 +9,23 @@ BoidEntity::BoidEntity(StringName type, Ref<EntityProperties> properties, Vector
 }
 
 void BoidEntity::process(double delta, GameState& gameState) {
+    Ref<BoidProperties::BoidConfig> config = Object::cast_to<BoidProperties>(properties.ptr())->boidConfig;
+
     Ref<MaterialProperties> curTile = gameState.getMaterialProperties(getCurrentTile(gameState));
     if (curTile->type == MaterialProperties::EMPTY) {
         position -= Vector2(0, delta * 10); // TODO: make gravity configurable
         return;
     } else if (curTile->isSolid()) {
-        dead = true;
-        return;
+        // TODO: don't hard-code this
+        if (config->tileWeights.has("food") && getCurrentTile(gameState) == StringName("food")) {
+            gameState.setTile(position.round(), "water");
+        } else {
+            dead = true;
+            return;
+        }
     }
 
     Vector2 acceleration = Vector2();
-
-    Ref<BoidProperties::BoidConfig> config = Object::cast_to<BoidProperties>(properties.ptr())->boidConfig;
 
     // Boid-related forces
     {
@@ -116,9 +121,9 @@ void BoidEntity::process(double delta, GameState& gameState) {
     position += velocity * delta;
     position = position.clamp({0,0}, gameState.getDimensions() - Vector2i(1,1));
 
-    // TODO: make this configurable
+    // TODO: don't hard-code this
     if (config->tileWeights.has("food") && getCurrentTile(gameState) == StringName("food")) {
-        gameState.setTile(position.round(), "");
+        gameState.setTile(position.round(), "water");
     }
 
     double amount = velocity.length() * delta;

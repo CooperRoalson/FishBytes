@@ -7,6 +7,9 @@
 [sub_resource type="ImageTexture" id="ImageTexture_ldwnh"]
 
 [node name="Main" type="GameManager"]
+width = 100
+height = 100
+sim_speed = 24.0
 
 [node name="Border" type="ColorRect" parent="."]
 offset_left = 344.0
