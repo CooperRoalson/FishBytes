@@ -5,6 +5,7 @@
 
 struct MaterialProperties : public Resource {
     Color color = Color{"#000000", 0.0};
+    String name = "Air";
 
     enum MaterialType : uint8_t {
         EMPTY,
@@ -12,6 +13,18 @@ struct MaterialProperties : public Resource {
         GRAVITY,
         FLUID
     } type = EMPTY;
+
+    static MaterialType typeFromString(const String& str) {
+        if (str == "STATIC") {
+            return STATIC;
+        } else if (str == "GRAVITY") {
+            return GRAVITY;
+        } else if (str == "FLUID") {
+            return FLUID;
+        } else {
+            return EMPTY;
+        }
+    }
 
     // Could add density or something
 
@@ -32,24 +45,14 @@ class Materials {
     Dictionary properties;
 
 public:
+    Materials(String filePath);
+
     Array getAllMaterials() {
         return properties.keys();
     }
 
     Ref<MaterialProperties> getProperties(const StringName& mat) {
         return properties[mat];
-    }
-
-    static Materials defaultMaterials() {
-        Materials mat;
-
-        mat.properties[""]      = {memnew(MaterialProperties)};
-        mat.properties["water"] = {memnew(MaterialProperties(Color{"#4d8cc4", 0.3}, MaterialProperties::FLUID))};
-        mat.properties["wood"]  = {memnew(MaterialProperties(Color{"#543a06", 1.0}, MaterialProperties::STATIC))};
-        mat.properties["sand"]  = {memnew(MaterialProperties(Color{"#d1a62e", 1.0}, MaterialProperties::GRAVITY))};
-        mat.properties["food"]  = {memnew(MaterialProperties(Color{"#07ab22", 1.0}, MaterialProperties::GRAVITY))};
-
-        return mat;
     }
 };
 

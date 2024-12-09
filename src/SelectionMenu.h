@@ -18,14 +18,11 @@ class SelectionMenu : public Control {
 
     Button* selectedButton = nullptr;
     StringName selected = "";
+    String selectedName = "Air";
     bool entitySelected = false;
 
     Slider* brushRadiusSlider = nullptr;
     Slider* brushDensitySlider = nullptr;
-
-    String stylizeName(StringName name) {
-        return name.is_empty() ? "Air" : name.capitalize();
-    }
 
 protected:
     static void _bind_methods();
@@ -35,7 +32,7 @@ public:
 
     void setContents(Materials& materials, Entities& entities);
 
-    void onButtonPressed(Button* button, StringName name, bool isEntity) {
+    void onButtonPressed(Button* button, StringName clicked, String clickedName, bool isEntity) {
         Ref<StyleBoxFlat> style = selectedStyle->duplicate();
         Ref<StyleBoxFlat> oldStyle = button->get_theme_stylebox("normal");
         style->set_bg_color(oldStyle->get_bg_color());
@@ -53,16 +50,17 @@ public:
         }
 
         selectedButton = button;
-        selected = name;
+        selected = clicked;
+        selectedName = clickedName;
         entitySelected = isEntity;
     }
 
-    void onButtonHovered(StringName name) {
-        selectedLabel->set_text(stylizeName(name));
+    void onButtonHovered(StringName hovered, String hoveredName) {
+        selectedLabel->set_text(hoveredName);
     }
 
     void onButtonExited() {
-        selectedLabel->set_text(stylizeName(selected));
+        selectedLabel->set_text(selectedName);
     }
 
     double getBrushRadius() const {

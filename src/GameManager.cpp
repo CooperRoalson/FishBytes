@@ -14,6 +14,10 @@ void GameManager::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_sim_speed", "p_speed"), &GameManager::set_sim_speed);
     ClassDB::bind_method(D_METHOD("get_sim_speed"), &GameManager::get_sim_speed);
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "sim_speed", PROPERTY_HINT_RANGE, "0.1, 20, or_greater"), "set_sim_speed", "get_sim_speed");
+
+    ClassDB::bind_method(D_METHOD("set_materials_file", "p_file"), &GameManager::set_materials_file);
+    ClassDB::bind_method(D_METHOD("get_materials_file"), &GameManager::get_materials_file);
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "materials_file", PROPERTY_HINT_FILE), "set_materials_file", "get_materials_file");
 }
 
 void GameManager::set_width(int p_width) { width = p_width; }
@@ -28,12 +32,15 @@ void GameManager::set_sim_speed(double p_speed) {
 }
 double GameManager::get_sim_speed() const { return simSpeed; }
 
+void GameManager::set_materials_file(String p_file) { materialsFile = p_file; }
+String GameManager::get_materials_file() const { return materialsFile; }
+
 void GameManager::_ready() {
     if (Engine::get_singleton()->is_editor_hint()) {
         return;
     }
 
-    gameState = std::make_unique<GameState>(width, height, Materials::defaultMaterials(), Entities::defaultEntities(), simSpeed);
+    gameState = std::make_unique<GameState>(width, height, Materials(materialsFile), Entities::defaultEntities(), simSpeed);
 
     selectionMenu = get_node<SelectionMenu>("%SelectionMenu");
     DEV_ASSERT(selectionMenu);

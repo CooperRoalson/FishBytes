@@ -26,30 +26,30 @@ StringName Entity::getCurrentTile(GameState& gameState) {
 GameState::GameState(int width, int height, Materials materials, Entities entities, double simSpeed)
         : grid(width, height), materials(materials), entities(entities), simSpeed(simSpeed) {
 
-    // TODO: load default grid
+    //v TODO: load default grid
 
-    // TESTING:
-    for (int x = 0; x < 25; ++x) {
-        for (int y = 40; y < 50; y++) {
-            grid[x, y] = "sand";
-        }
-    }
-    grid[10, 49] = "food";
-    grid[15, 49] = "food";
-    grid[20, 49] = "food";
-
-    for (int y = 10; y < 20; y++) {
-        for (int x = 10; x < 50; ++x) {
-            grid[x, y] = "water";
-        }
-    }
-    grid[20, 21] = "water";
-
-    Ref<BoidProperties> boidProps = entities.getProperties("boid");;
-    entityInstances.push_back(new BoidEntity(boidProps, Vector2(25, 45)));
-    entityInstances.push_back(new BoidEntity(boidProps, Vector2(25, 48)));
-    entityInstances.push_back(new BoidEntity(boidProps, Vector2(28, 45)));
-    entityInstances.push_back(new BoidEntity(boidProps, Vector2(28, 48)));
+    // // TESTING:
+    // for (int x = 0; x < 25; ++x) {
+    //     for (int y = 40; y < 50; y++) {
+    //         grid[x, y] = "sand";
+    //     }
+    // }
+    // grid[10, 49] = "food";
+    // grid[15, 49] = "food";
+    // grid[20, 49] = "food";
+    //
+    // for (int y = 10; y < 20; y++) {
+    //     for (int x = 10; x < 50; ++x) {
+    //         grid[x, y] = "water";
+    //     }
+    // }
+    // grid[20, 21] = "water";
+    //
+    // Ref<BoidProperties> boidProps = entities.getProperties("boid");;
+    // entityInstances.push_back(new BoidEntity(boidProps, Vector2(25, 45)));
+    // entityInstances.push_back(new BoidEntity(boidProps, Vector2(25, 48)));
+    // entityInstances.push_back(new BoidEntity(boidProps, Vector2(28, 45)));
+    // entityInstances.push_back(new BoidEntity(boidProps, Vector2(28, 48)));
 }
 
 void GameState::generateFrame(Ref<Image> image) {
