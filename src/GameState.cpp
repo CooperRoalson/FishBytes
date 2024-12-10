@@ -23,13 +23,13 @@ StringName Entity::getCurrentTile(GameState& gameState) {
     return gameState.getTile(position.round());
 }
 
-GameState::GameState(int width, int height, double simSpeed)
-        : grid(width, height), simSpeed(simSpeed) {}
+GameState::GameState(Vector2i size, double simSpeed)
+        : grid(size), simSpeed(simSpeed) {}
 
 void GameState::generateFrame(Ref<Image> image) {
     // Write material colors
-    for (int x = 0; x < grid.width; ++x) {
-        for (int y = 0; y < grid.height; ++y) {
+    for (int x = 0; x < grid.size.x; ++x) {
+        for (int y = 0; y < grid.size.y; ++y) {
             auto mat = grid[x, y];
             Ref<MaterialProperties> properties = materials.getProperties(mat);
             image->set_pixel(x, y, properties->color);
@@ -68,5 +68,72 @@ void GameState::processNearbyEntities(Vector2 position, double radius, const std
         if ((e->getPosition() - position).length_squared() <= radius * radius) {
             callback(*e);
         }
+    }
+}
+
+Ref<JSON> GameState::exportData() {
+    Dictionary data;
+
+    Array size;
+    size.append(grid.size.x);
+    size.append(grid.size.y);
+    data["size"] = size;
+
+    Array gridData;
+    gridData.resize(grid.size.x * grid.size.y);
+    for (int y = 0; y < grid.size.y; ++y) {
+        for (int x = 0; x < grid.size.x; ++x) {
+            gridData[y * grid.size.x + x] = grid[x, y];
+        }
+    }
+    data["grid"] = gridData;
+
+    Array entityInstanceData;
+    for (Entity* e : entityInstances) {
+        Dictionary entityData;
+
+        entityData["type"] = e->getType();
+
+        Array position;
+        position.append(e->getPosition().round().x);
+        position.append(e->getPosition().round().y);
+        entityData["position"] = position;
+
+        entityInstanceData.append(entityData);
+    }
+    data["entityInstances"] = entityInstanceData;
+
+    Ref<JSON> json = {memnew(JSON)};
+    json->set_data(data);
+    return json;
+}
+
+void GameState::importData(Ref<JSON> json) {
+    Dictionary data = json->get_data();
+
+    Array size = data.get_or_add("size", Array());
+    if (size.size() != 2) { return; }
+    clearGrid({size[0], size[1]});
+
+    Array gridData = data.get_or_add("grid", Array());
+    for (int y = 0; y < grid.size.y; ++y) {
+        for (int x = 0; x < grid.size.x; ++x) {
+            int i = y * grid.size.x + x;
+            if (i >= gridData.size()) {
+                break;
+            }
+            grid[x, y] = gridData[i];
+        }
+    }
+
+    Array entityInstances = data.get_or_add("entityInstances", Array());
+    for (int i = 0; i < entityInstances.size(); ++i) {
+        Dictionary entityData = entityInstances[i];
+
+        StringName type = entityData.get_or_add("type", "");
+
+        Array position = entityData.get_or_add("position", Array());
+        if (position.size() != 2) { continue; }
+        spawnEntity({position[0], position[1]}, type);
     }
 }

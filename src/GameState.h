@@ -14,27 +14,27 @@ struct Pixel {
 struct Grid {
     std::vector<StringName> data;
     std::vector<bool> updated;
-    int width, height;
+    Vector2i size;
 
     StringName& operator[](const int x, const int y) {
-        if(x < 0 || x >= width && y < 0 && y >= height) {
+        if(x < 0 || x >= size.x && y < 0 && y >= size.y) {
             UtilityFunctions::printerr("Accessing invalid tile ", x, ", ", y);
             DEV_ASSERT(false);
         }
-        return data[y * width + x];
+        return data[y * size.x + x];
     }
 
     const StringName& operator[](int x, int y) const {
-        DEV_ASSERT(x >= 0 && x < width && y >= 0 && y < height);
-        return data[y * width + x];
+        DEV_ASSERT(x >= 0 && x < size.x && y >= 0 && y < size.y);
+        return data[y * size.x + x];
     }
 
     bool wasUpdated(const int x, const int y) {
-        return updated[y * width + x] && (*this)[x,y] != StringName("");
+        return updated[y * size.x + x] && (*this)[x,y] != StringName("");
     }
 
     void setUpdated(const int x, const int y) {
-        updated[y * width + x] = true;
+        updated[y * size.x + x] = true;
     }
 
     void finalizeUpdate() {
@@ -44,8 +44,8 @@ struct Grid {
     }
 
     void swapTiles(const int x1, const int y1, const int x2, const int y2) {
-        DEV_ASSERT(x1 >= 0 && x1 < width && y1 >= 0 && y1 < height);
-        DEV_ASSERT(x2 >= 0 && x2 < width && y2 >= 0 && y2 < height);
+        DEV_ASSERT(x1 >= 0 && x1 < size.x && y1 >= 0 && y1 < size.y);
+        DEV_ASSERT(x2 >= 0 && x2 < size.x && y2 >= 0 && y2 < size.y);
         auto temp = (*this)[x1, y1];
         (*this)[x1, y1] = (*this)[x2, y2];
         (*this)[x2, y2] = temp;
@@ -53,9 +53,17 @@ struct Grid {
         setUpdated(x2, y2);
     }
 
-    Grid(const int width, const int height) : width(width), height(height), data(width * height), updated(width * height) {
-        // data = new StringName[width * height];
+    void reset(Vector2i sz) {
+        size = sz;
+
+        data.clear();
+        data.resize(size.x * size.y);
+
+        updated.clear();
+        updated.resize(size.x * size.y);
     }
+
+    Grid(Vector2i size) : size(size), data(size.x * size.y), updated(size.x * size.y) {}
 };
 
 class GameState;
@@ -95,7 +103,7 @@ class GameState {
 
 public:
 
-    GameState(int width, int height, double simSpeed);
+    GameState(Vector2i size, double simSpeed);
 
     ~GameState() {
         for (auto* e : entityInstances) {
@@ -124,12 +132,10 @@ public:
         return materials.getProperties(mat);
     }
 
-    Vector2i getDimensions() const {
-        return {grid.width, grid.height};
-    }
+    Vector2i getDimensions() const { return grid.size; }
 
     bool isInBounds(Vector2i pos) const {
-        return pos.x >= 0 && pos.x < grid.width && pos.y >= 0 && pos.y < grid.height;
+        return pos.x >= 0 && pos.x < grid.size.x && pos.y >= 0 && pos.y < grid.size.y;
     }
 
     StringName getTile(Vector2i const& pos) const {
@@ -160,8 +166,22 @@ public:
         }
     }
 
+    void clearGrid(Vector2i size = {-1, -1}) {
+        if (size == Vector2i(-1, -1)) {
+            size = grid.size;
+        }
+        grid.reset(size);
+        for (auto* e : entityInstances) {
+            delete e;
+        }
+        entityInstances.clear();
+    }
+
     Materials& getMaterials() { return materials; }
     Entities& getEntities() { return entities; }
+
+    Ref<JSON> exportData();
+    void importData(Ref<JSON> data);
 };
 
 

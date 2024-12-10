@@ -30,7 +30,7 @@ protected:
 public:
     void _ready() override;
 
-    void clear();
+    void clearMenu();
 
     void setContents(Materials& materials, Entities& entities);
 
@@ -76,6 +76,8 @@ public:
     StringName getSelected() const { return selected; }
 
     bool isEntitySelected() const { return entitySelected; }
+
+    void clearGrid() { emit_signal("clear_grid"); }
 };
 
 

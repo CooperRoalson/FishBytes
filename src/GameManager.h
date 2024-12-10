@@ -14,7 +14,7 @@ class GameManager : public Node2D {
 
     std::unique_ptr<GameState> gameState;
 
-    int width = 50, height = 50;
+    Vector2i gridSize = {50, 50};
     double simSpeed = 14.0;
 
     bool isMouseDown = false;
@@ -34,18 +34,20 @@ public:
     void _process(double p_delta) override;
     void _physics_process(double delta) override;
 
-    void set_width(int p_width);
-    int get_width() const;
+    void setGridSize(Vector2i p_width);
+    Vector2i getGridSize() const;
     void set_height(int p_height);
     int get_height() const;
-    void set_sim_speed(double p_speed);
-    double get_sim_speed() const;
-    void set_default_config(String p_file);
-    String get_default_config() const;
+    void setSimSpeed(double p_speed);
+    double getSimSpeed() const;
+    void setDefaultConfig(String p_file);
+    String getDefaultConfig() const;
 
-    void export_data(String p_file);
-    void import_data(String p_file);
-    void import_config(String p_file);
+    void exportData(String p_file);
+    void importData(String p_file);
+    void importConfig(String p_file);
+
+    void clearGrid();
 };
 
 

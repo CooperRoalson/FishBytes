@@ -6,6 +6,9 @@ void SelectionMenu::_bind_methods() {
     ClassDB::bind_method(D_METHOD("on_button_pressed", "button", "clicked", "clickedName", "isEntity"), &SelectionMenu::onButtonPressed);
     ClassDB::bind_method(D_METHOD("on_button_hovered", "hovered", "hoveredName"), &SelectionMenu::onButtonHovered);
     ClassDB::bind_method(D_METHOD("on_button_exited"), &SelectionMenu::onButtonExited);
+    ClassDB::bind_method(D_METHOD("clear_grid"), &SelectionMenu::clearGrid);
+
+    ADD_SIGNAL(MethodInfo("clear_grid"));
 }
 
 void SelectionMenu::_ready() {
@@ -40,9 +43,13 @@ void SelectionMenu::_ready() {
 
     brushDensitySlider = get_node<Slider>("%Density Slider");
     DEV_ASSERT(brushDensitySlider);
+
+    Button* clearButton = get_node<Button>("%Clear Button");
+    DEV_ASSERT(clearButton);
+    clearButton->connect("pressed", Callable(this, "clear_grid"));
 }
 
-void SelectionMenu::clear() {
+void SelectionMenu::clearMenu() {
     int numTiles = tileGrid->get_child_count();
     for (int i = 0; i < numTiles; i++) {
         Node* child = tileGrid->get_child(i);
@@ -57,7 +64,7 @@ void SelectionMenu::clear() {
 }
 
 void SelectionMenu::setContents(Materials& materials, Entities& entities) {
-    clear();
+    clearMenu();
 
     Array arr = materials.getAllMaterials();
     int numMats = arr.size();

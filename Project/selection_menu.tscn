@@ -147,3 +147,21 @@ layout_mode = 2
 max_value = 4.0
 step = 0.1
 value = 2.5
+
+[node name="Panel3" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_r0sv3")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Panel3"]
+layout_mode = 2
+
+[node name="Edit Label" type="Label" parent="VBoxContainer/Panel3/VBoxContainer"]
+layout_mode = 2
+text = "Edit"
+label_settings = SubResource("LabelSettings_77542")
+horizontal_alignment = 1
+
+[node name="Clear Button" type="Button" parent="VBoxContainer/Panel3/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"

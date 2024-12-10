@@ -4,8 +4,8 @@
 
 void MaterialSimulator::process(Grid &grid, Materials &materials) {
     // Process tiles from bottom to top (and left to right)
-    for (int y = 0; y < grid.height; ++y) {
-        for (int x = 0; x < grid.width; ++x) {
+    for (int y = 0; y < grid.size.y; ++y) {
+        for (int x = 0; x < grid.size.x; ++x) {
             processTile(grid, x, y, materials);
         }
     }
@@ -39,7 +39,7 @@ void MaterialSimulator::processTile(Grid &grid, int x, int y, Materials &materia
                         grid.swapTiles(x, y, x - 1, y - 1);
                         break;
                     }
-                    if (x < grid.width - 1 && !materials.getProperties(grid[x + 1, y - 1])->isSolid() && !grid.wasUpdated(x + 1, y - 1)) {
+                    if (x < grid.size.x - 1 && !materials.getProperties(grid[x + 1, y - 1])->isSolid() && !grid.wasUpdated(x + 1, y - 1)) {
                         grid.swapTiles(x, y, x + 1, y - 1);
                         break;
                     }
@@ -65,7 +65,7 @@ void MaterialSimulator::processTile(Grid &grid, int x, int y, Materials &materia
                         break;
                     }
                 }
-                if (x < grid.width - 1) {
+                if (x < grid.size.x - 1) {
                     auto belowRight = grid[x + 1, y - 1];
                     if (!grid.wasUpdated(x + 1, y - 1) &&
                         materials.getProperties(belowRight)->type == MaterialProperties::EMPTY) {
@@ -78,7 +78,7 @@ void MaterialSimulator::processTile(Grid &grid, int x, int y, Materials &materia
             // if can't move down at all, spread horizontally
             bool canFlowLeft = x > 0 && !grid.wasUpdated(x - 1, y) &&
                                materials.getProperties(grid[x - 1, y])->type == MaterialProperties::EMPTY;
-            bool canFlowRight = x < grid.width - 1 && !grid.wasUpdated(x + 1, y) &&
+            bool canFlowRight = x < grid.size.x - 1 && !grid.wasUpdated(x + 1, y) &&
                                 materials.getProperties(grid[x + 1, y])->type == MaterialProperties::EMPTY;
 
             if (canFlowLeft && canFlowRight) {

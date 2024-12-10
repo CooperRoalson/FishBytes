@@ -18,10 +18,10 @@ void FileMenu::_ready() {
     }
 
     dataFileInput = get_node<LineEdit>("%Data File Input");
-    dataExportButton = get_node<Button>("%Data Export Button");
-    dataImportButton = get_node<Button>("%Data Import Button");
+    Button* dataExportButton = get_node<Button>("%Data Export Button");
+    Button* dataImportButton = get_node<Button>("%Data Import Button");
     configFileInput = get_node<LineEdit>("%Config File Input");
-    configImportButton = get_node<Button>("%Config Import Button");
+    Button* configImportButton = get_node<Button>("%Config Import Button");
 
     DEV_ASSERT(dataFileInput);
     DEV_ASSERT(dataExportButton);

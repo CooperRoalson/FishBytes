@@ -7,11 +7,7 @@ class FileMenu : public Control {
     GDCLASS(FileMenu, Control)
 
     LineEdit* dataFileInput = nullptr;
-    Button* dataExportButton = nullptr;
-    Button* dataImportButton = nullptr;
-
     LineEdit* configFileInput = nullptr;
-    Button* configImportButton = nullptr;
 
 protected:
     static void _bind_methods();
