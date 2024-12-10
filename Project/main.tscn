@@ -1,41 +1,46 @@
-[gd_scene load_steps=4 format=3 uid="uid://t40j5uqimdss"]
+[gd_scene load_steps=5 format=3 uid="uid://t40j5uqimdss"]
 
 [ext_resource type="PackedScene" uid="uid://cyw6fjwn2j08q" path="res://selection_menu.tscn" id="1_4axfn"]
+[ext_resource type="PackedScene" uid="uid://dq63bq46m70d" path="res://file_menu.tscn" id="2_h5c4p"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_7o4oo"]
 
 [sub_resource type="ImageTexture" id="ImageTexture_ldwnh"]
 
 [node name="Main" type="GameManager"]
-width = 100
-height = 100
-sim_speed = 24.0
 
 [node name="Border" type="ColorRect" parent="."]
-offset_left = 344.0
+offset_left = 330.0
 offset_top = 63.0
-offset_right = 870.0
+offset_right = 856.0
 offset_bottom = 587.0
 color = Color(0, 0, 0, 1)
 
-[node name="Background" type="ColorRect" parent="."]
-offset_left = 358.0
-offset_top = 77.0
-offset_right = 856.0
-offset_bottom = 575.0
+[node name="Background" type="ColorRect" parent="Border"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = 512.0
+offset_bottom = 512.0
 color = Color(0.721368, 0.677273, 0.985331, 1)
 
-[node name="Canvas" type="MeshInstance2D" parent="."]
+[node name="Canvas" type="MeshInstance2D" parent="Border/Background"]
 unique_name_in_owner = true
 texture_filter = 1
-position = Vector2(607, 326.25)
+position = Vector2(249, 249.25)
 scale = Vector2(500, 500)
 mesh = SubResource("QuadMesh_7o4oo")
 texture = SubResource("ImageTexture_ldwnh")
 
 [node name="SelectionMenu" parent="." instance=ExtResource("1_4axfn")]
 unique_name_in_owner = true
-offset_left = 92.0
-offset_top = 238.0
-offset_right = 132.0
-offset_bottom = 278.0
+offset_left = 81.0
+offset_top = 167.0
+offset_right = 121.0
+offset_bottom = 207.0
+
+[node name="FileMenu" parent="." instance=ExtResource("2_h5c4p")]
+offset_left = 908.0
+offset_top = 171.0
+offset_right = 948.0
+offset_bottom = 211.0

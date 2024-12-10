@@ -1,0 +1,78 @@
+{
+  "materials": {
+    "water": {
+      "name": "Water",
+      "color": "#4d8cc4",
+      "alpha": 0.3,
+      "type": "FLUID"
+    },
+    "redCoral": {
+      "name": "Red Coral",
+      "color": "#750f2e",
+      "type": "STATIC"
+    },
+    "blueCoral": {
+      "name": "Blue Coral",
+      "color": "#450eb3",
+      "type": "STATIC"
+    },
+    "purpleCoral": {
+      "name": "Purple Coral",
+      "color": "#8a0a7b",
+      "type": "STATIC"
+    },
+    "sand": {
+      "name": "Sand",
+      "color": "#d1a62e",
+      "type": "GRAVITY"
+    }
+  },
+  "entities": {
+    "redFish": {
+      "name": "Red Fish",
+      "color": "#FF0000",
+      "type": "BOID",
+      "config": "goldfishBoid"
+    },
+    "blueFish": {
+      "name": "Blue Fish",
+      "color": "#13438a",
+      "type": "BOID",
+      "config": "goldfishBoid"
+    },
+    "purpleFish": {
+      "name": "Purple Fish",
+      "color": "#880ec9",
+      "type": "BOID",
+      "config": "goldfishBoid"
+    },
+    "yellowFish": {
+      "name": "Yellow Fish",
+      "color": "#d4d40b",
+      "type": "BOID",
+      "config": "goldfishBoid"
+    }
+  },
+  "entityConfig": {
+    "boids": {
+      "goldfishBoid": {
+        "visionRadius": 10,
+        "groupRadius": 10.0,
+        "maxSpeed": 50,
+        "maxAccel": 50,
+        "dragPercent": 0.2,
+        "bouncePercent": 0.2,
+        "separationWeight": 10.0,
+        "alignmentPercent": 0.3,
+        "cohesionWeight": 6.0,
+        "obstacleWeight": 2.0,
+        "materialWeights": {
+          "food": 7.0
+        },
+        "entityWeights": {
+          "shark": -15.0
+        }
+      }
+    }
+  }
+}

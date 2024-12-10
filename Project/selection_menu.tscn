@@ -49,6 +49,7 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [sub_resource type="SystemFont" id="SystemFont_fpdin"]
+subpixel_positioning = 0
 
 [sub_resource type="LabelSettings" id="LabelSettings_4bks4"]
 font = SubResource("SystemFont_fpdin")
@@ -145,4 +146,4 @@ unique_name_in_owner = true
 layout_mode = 2
 max_value = 4.0
 step = 0.1
-value = 1.0
+value = 2.5
