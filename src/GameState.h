@@ -95,12 +95,17 @@ class GameState {
 
 public:
 
-    GameState(int width, int height, Materials materials, Entities entities, double simSpeed);
+    GameState(int width, int height, double simSpeed);
 
     ~GameState() {
         for (auto* e : entityInstances) {
             delete e;
         }
+    }
+
+    void setConfig(Materials materials, Entities entities) {
+        this->materials = materials;
+        this->entities = entities;
     }
 
     void setSimSpeed(double speed) {

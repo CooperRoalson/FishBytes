@@ -4,11 +4,13 @@
 #include "GameState.h"
 #include "godot_includes.h"
 #include "SelectionMenu.h"
+#include "FileMenu.h"
 
 class GameManager : public Node2D {
     GDCLASS(GameManager, Node2D)
 
     SelectionMenu* selectionMenu = nullptr;
+    FileMenu* fileMenu = nullptr;
 
     std::unique_ptr<GameState> gameState;
 
@@ -20,7 +22,7 @@ class GameManager : public Node2D {
     MeshInstance2D* canvas = nullptr;
     Ref<Image> image;
 
-    String configFile = "res://config.json";
+    String defaultConfig = "res://config.json";
 
     void handleMouseInput(double delta);
 
@@ -38,8 +40,12 @@ public:
     int get_height() const;
     void set_sim_speed(double p_speed);
     double get_sim_speed() const;
-    void set_config_file(String p_file);
-    String get_config_file() const;
+    void set_default_config(String p_file);
+    String get_default_config() const;
+
+    void export_data(String p_file);
+    void import_data(String p_file);
+    void import_config(String p_file);
 };
 
 

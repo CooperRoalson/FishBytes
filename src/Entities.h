@@ -29,6 +29,7 @@ class Entities {
     Dictionary parseBoidConfigs(Dictionary boidData);
 
 public:
+    Entities() : Entities(Dictionary(), Dictionary()) {}
     Entities(Dictionary entities, Dictionary entityConfig);
 
     Array getAllEntities() {

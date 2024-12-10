@@ -40,6 +40,7 @@ offset_right = 121.0
 offset_bottom = 207.0
 
 [node name="FileMenu" parent="." instance=ExtResource("2_h5c4p")]
+unique_name_in_owner = true
 offset_left = 908.0
 offset_top = 171.0
 offset_right = 948.0

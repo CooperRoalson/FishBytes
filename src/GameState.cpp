@@ -23,11 +23,8 @@ StringName Entity::getCurrentTile(GameState& gameState) {
     return gameState.getTile(position.round());
 }
 
-GameState::GameState(int width, int height, Materials materials, Entities entities, double simSpeed)
-        : grid(width, height), materials(materials), entities(entities), simSpeed(simSpeed) {
-
-    // TODO: load default grid
-}
+GameState::GameState(int width, int height, double simSpeed)
+        : grid(width, height), simSpeed(simSpeed) {}
 
 void GameState::generateFrame(Ref<Image> image) {
     // Write material colors
@@ -35,8 +32,7 @@ void GameState::generateFrame(Ref<Image> image) {
         for (int y = 0; y < grid.height; ++y) {
             auto mat = grid[x, y];
             Ref<MaterialProperties> properties = materials.getProperties(mat);
-            Color c = properties.is_null() ? Color() : properties->color;
-            image->set_pixel(x, y, c);
+            image->set_pixel(x, y, properties->color);
         }
     }
 

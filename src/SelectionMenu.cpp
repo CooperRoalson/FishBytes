@@ -42,7 +42,23 @@ void SelectionMenu::_ready() {
     DEV_ASSERT(brushDensitySlider);
 }
 
+void SelectionMenu::clear() {
+    int numTiles = tileGrid->get_child_count();
+    for (int i = 0; i < numTiles; i++) {
+        Node* child = tileGrid->get_child(i);
+        child->queue_free();
+    }
+
+    int numEntities = entityGrid->get_child_count();
+    for (int i = 0; i < numEntities; i++) {
+        Node* child = entityGrid->get_child(i);
+        child->queue_free();
+    }
+}
+
 void SelectionMenu::setContents(Materials& materials, Entities& entities) {
+    clear();
+
     Array arr = materials.getAllMaterials();
     int numMats = arr.size();
     arr.append_array(entities.getAllEntities());

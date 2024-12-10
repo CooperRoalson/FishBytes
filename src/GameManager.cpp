@@ -15,9 +15,13 @@ void GameManager::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_sim_speed"), &GameManager::get_sim_speed);
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "sim_speed", PROPERTY_HINT_RANGE, "0.1, 20, or_greater"), "set_sim_speed", "get_sim_speed");
 
-    ClassDB::bind_method(D_METHOD("set_config_file", "p_file"), &GameManager::set_config_file);
-    ClassDB::bind_method(D_METHOD("get_config_file"), &GameManager::get_config_file);
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "config_file", PROPERTY_HINT_FILE), "set_config_file", "get_config_file");
+    ClassDB::bind_method(D_METHOD("set_default_config", "p_file"), &GameManager::set_default_config);
+    ClassDB::bind_method(D_METHOD("get_default_config"), &GameManager::get_default_config);
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "default_config", PROPERTY_HINT_FILE), "set_default_config", "get_default_config");
+
+    ClassDB::bind_method(D_METHOD("export_data", "p_file"), &GameManager::export_data);
+    ClassDB::bind_method(D_METHOD("import_data", "p_file"), &GameManager::import_data);
+    ClassDB::bind_method(D_METHOD("import_config", "p_file"), &GameManager::import_config);
 }
 
 void GameManager::set_width(int p_width) { width = p_width; }
@@ -32,25 +36,51 @@ void GameManager::set_sim_speed(double p_speed) {
 }
 double GameManager::get_sim_speed() const { return simSpeed; }
 
-void GameManager::set_config_file(String p_file) { configFile = p_file; }
-String GameManager::get_config_file() const { return configFile; }
+void GameManager::set_default_config(String p_file) { defaultConfig = p_file; }
+String GameManager::get_default_config() const { return defaultConfig; }
+
+void GameManager::import_config(String p_file) {
+    Ref<JSON> json = ResourceLoader::get_singleton()->load(p_file, "JSON");
+    if (json.is_null()) {
+        UtilityFunctions::printerr("Failed to load config file: ", p_file);
+        return;
+    }
+
+    Dictionary config = Dictionary(json->get_data());
+    Dictionary materials = config.get_or_add("materials", Dictionary());
+    Dictionary entities = config.get_or_add("entities", Dictionary());
+    Dictionary entityConfig = config.get_or_add("entityConfig", Dictionary());
+
+    Materials mats(materials);
+    Entities ents(entities, entityConfig);
+    gameState->setConfig(mats, ents);
+    selectionMenu->setContents(mats, ents);
+}
+
+void GameManager::export_data(String p_file) {
+}
+
+void GameManager::import_data(String p_file) {
+}
 
 void GameManager::_ready() {
     if (Engine::get_singleton()->is_editor_hint()) {
         return;
     }
 
-    Ref<JSON> json = ResourceLoader::get_singleton()->load(configFile, "JSON");
-    Dictionary config = json.is_valid() ? Dictionary(json->get_data()) : Dictionary();
-    Dictionary materials = config.get_or_add("materials", Dictionary());
-    Dictionary entities = config.get_or_add("entities", Dictionary());
-    Dictionary entityConfig = config.get_or_add("entityConfig", Dictionary());
-
-    gameState = std::make_unique<GameState>(width, height, Materials(materials), Entities(entities, entityConfig), simSpeed);
+    gameState = std::make_unique<GameState>(width, height, simSpeed);
 
     selectionMenu = get_node<SelectionMenu>("%SelectionMenu");
     DEV_ASSERT(selectionMenu);
-    selectionMenu->setContents(gameState->getMaterials(), gameState->getEntities());
+
+    import_config(defaultConfig);
+
+    fileMenu = get_node<FileMenu>("%FileMenu");
+    DEV_ASSERT(fileMenu);
+    fileMenu->connect("export_data", Callable(this, "export_data"));
+    fileMenu->connect("import_data", Callable(this, "import_data"));
+    fileMenu->connect("import_config", Callable(this, "import_config"));
+
 
     canvas = get_node<MeshInstance2D>("%Canvas");
     DEV_ASSERT(canvas);

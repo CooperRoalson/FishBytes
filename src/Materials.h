@@ -43,8 +43,10 @@ struct MaterialProperties : public Resource {
 
 class Materials {
     Dictionary properties;
+    Ref<MaterialProperties> missingMaterial;
 
 public:
+    Materials() : Materials(Dictionary()) {}
     Materials(Dictionary materials);
 
     Array getAllMaterials() {
@@ -52,7 +54,8 @@ public:
     }
 
     Ref<MaterialProperties> getProperties(const StringName& mat) {
-        return properties[mat];
+        Ref<MaterialProperties> props = properties[mat];
+        return props.is_valid() ? props : missingMaterial;
     }
 };
 

@@ -30,6 +30,8 @@ protected:
 public:
     void _ready() override;
 
+    void clear();
+
     void setContents(Materials& materials, Entities& entities);
 
     void onButtonPressed(Button* button, StringName clicked, String clickedName, bool isEntity) {

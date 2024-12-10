@@ -3,6 +3,11 @@
 Materials::Materials(Dictionary materials) {
     properties[""]      = {memnew(MaterialProperties)};
 
+    missingMaterial = Ref<MaterialProperties>{memnew(MaterialProperties)};
+    missingMaterial->color = Color("#000000");
+    missingMaterial->name = "MISSING";
+    missingMaterial->type = MaterialProperties::STATIC;
+
     Array ids = materials.keys();
     for (int i = 0; i < ids.size(); ++i) {
         String id = ids[i];
