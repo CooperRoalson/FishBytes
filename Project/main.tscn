@@ -36,14 +36,14 @@ texture = SubResource("ImageTexture_ldwnh")
 
 [node name="SelectionMenu" parent="." instance=ExtResource("1_4axfn")]
 unique_name_in_owner = true
-offset_left = 68.0
-offset_top = 103.0
-offset_right = 108.0
-offset_bottom = 143.0
+offset_left = 70.0
+offset_top = 65.0
+offset_right = 110.0
+offset_bottom = 105.0
 
 [node name="FileMenu" parent="." instance=ExtResource("2_h5c4p")]
 unique_name_in_owner = true
-offset_left = 908.0
-offset_top = 171.0
-offset_right = 948.0
-offset_bottom = 211.0
+offset_left = 912.0
+offset_top = 68.0
+offset_right = 952.0
+offset_bottom = 108.0

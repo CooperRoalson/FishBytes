@@ -23,6 +23,8 @@ Dictionary Entities::parseBoidConfigs(Dictionary boidData) {
         props->obstacleWeight = config.get_or_add("obstacleWeight", 1);
         props->tileWeights = config.get_or_add("materialWeights", Dictionary());
         props->entityWeights = config.get_or_add("entityWeights", Dictionary());
+        props->food = config.get_or_add("food", Array());
+        props->prey = config.get_or_add("prey", Array());
     }
     return boidConfig;
 }

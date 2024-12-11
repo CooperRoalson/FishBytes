@@ -17,8 +17,8 @@ void BoidEntity::process(double delta, GameState& gameState) {
         return;
     } else if (curTile->isSolid()) {
         // TODO: don't hard-code this
-        if (config->tileWeights.has("food") && getCurrentTile(gameState) == StringName("food")) {
-            gameState.setTile(position.round(), "water");
+        if (config->food.has(getCurrentTile(gameState))) {
+            gameState.setTile(position.round(), "");
         } else {
             dead = true;
             return;
@@ -53,12 +53,11 @@ void BoidEntity::process(double delta, GameState& gameState) {
                 double distSquared = diff.length_squared();
                 double dist = Math::sqrt(distSquared);
 
-                // TODO: don't hard-code this
-                if (dist < 0.75 && e.getType() == StringName("shark") && config->entityWeights.has("shark")) {
-                    dead = true;
-                }
-
                 if (Math::is_zero_approx(distSquared)) { return; }
+
+                if (dist < 0.75 && config->prey.has(e.getType())) {
+                    e.die();
+                }
 
                 if (config->entityWeights.has(e.getType())) {
                     double weight = config->entityWeights[e.getType()];
@@ -104,7 +103,9 @@ void BoidEntity::process(double delta, GameState& gameState) {
 
             double weight = 0;
             if (config->tileWeights.has(mat)) {
-                weight = config->tileWeights[mat]; // Proportional to 1
+                if (hasLineOfSightTo(gameState, pos)) {
+                    weight = config->tileWeights[mat]; // Proportional to 1
+                }
             } else if (!gameState.isInBounds(pos) || !properties->isFluid()) {
                 weight = -config->obstacleWeight * (1 / distSquared ); // Proportional to 1/distance^2
             }
@@ -121,9 +122,8 @@ void BoidEntity::process(double delta, GameState& gameState) {
     position += velocity * delta;
     position = position.clamp({0,0}, gameState.getDimensions() - Vector2i(1,1));
 
-    // TODO: don't hard-code this
-    if (config->tileWeights.has("food") && getCurrentTile(gameState) == StringName("food")) {
-        gameState.setTile(position.round(), "water");
+    if (config->food.has(getCurrentTile(gameState))) {
+        gameState.setTile(position.round(), "");
     }
 
     double amount = velocity.length() * delta;
@@ -134,4 +134,18 @@ void BoidEntity::process(double delta, GameState& gameState) {
         velocity *= -config->bouncePercent;
         amount -= sub;
     }
+}
+
+bool BoidEntity::hasLineOfSightTo(GameState& gameState, Vector2i pos) {
+    Vector2 diff = pos - position.round();
+    double dist = diff.length();
+    Vector2 dir = diff / dist;
+    for (int i = 0; i < dist; i++) {
+        Vector2i checkPos = (position + dir * i).round();
+        if (checkPos == pos) { break; }
+
+        if (!gameState.isInBounds(checkPos)) { return false; }
+        if (gameState.getMaterialProperties(gameState.getTile(checkPos))->isSolid()) { return false; }
+    }
+    return true;
 }

@@ -23,6 +23,8 @@ struct BoidProperties : EntityProperties {
         double obstacleWeight;
         Dictionary tileWeights;
         Dictionary entityWeights;
+        Array food;
+        Array prey;
     };
 
     Ref<BoidConfig> boidConfig;
@@ -35,6 +37,8 @@ public:
     BoidEntity(StringName type, Ref<EntityProperties> properties, Vector2 position);
 
     void process(double delta, GameState& gameState) override;
+
+    bool hasLineOfSightTo(GameState& gameState, Vector2i pos);
 };
 
 

@@ -93,6 +93,7 @@ public:
     Ref<EntityProperties> getProperties() { return properties; }
     StringName getCurrentTile(GameState& gameState);
     bool isDead() { return dead; }
+    void die() { dead = true;}
 };
 
 class GameState {

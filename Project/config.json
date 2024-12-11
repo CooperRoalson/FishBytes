@@ -48,13 +48,14 @@
 				"separationWeight": 10.0,
 				"alignmentPercent": 0.3,
 				"cohesionWeight": 6.0,
-				"obstacleWeight": 2.0,
+				"obstacleWeight": 1.8,
 				"materialWeights": {
-					"food": 7.0
+					"food": 9.0
 				},
 				"entityWeights": {
 					"shark": -15.0
-				}
+				},
+				"food": ["food"]
 			},
 			"sharkBoid": {
 				"visionRadius": 10,
@@ -66,11 +67,12 @@
 				"separationWeight": 15.0,
 				"alignmentPercent": 0.4,
 				"cohesionWeight": 2.0,
-				"obstacleWeight": 2.0,
+				"obstacleWeight": 1.8,
 				"materialWeights": {},
 				"entityWeights": {
 					"goldfish": 7.0
-				}
+				},
+				"prey": ["goldfish"]
 			}
 		}
 	}
