@@ -7,6 +7,9 @@
 #include "godot_includes.h"
 #include "Materials.h"
 
+// Forward declaration
+class GameManager;
+
 struct Pixel {
     StringName material;
 };
@@ -92,6 +95,9 @@ public:
 };
 
 class GameState {
+    GameManager* gameManager;
+
+    String configFile;
     Materials materials;
     Entities entities;
 
@@ -103,7 +109,7 @@ class GameState {
 
 public:
 
-    GameState(Vector2i size, double simSpeed);
+    GameState(GameManager* gameManager, Vector2i size, double simSpeed);
 
     ~GameState() {
         for (auto* e : entityInstances) {
@@ -111,7 +117,8 @@ public:
         }
     }
 
-    void setConfig(Materials materials, Entities entities) {
+    void setConfig(String configFile, Materials materials, Entities entities) {
+        this->configFile = configFile;
         this->materials = materials;
         this->entities = entities;
     }

@@ -2,6 +2,7 @@
 
 #include "MaterialSimulator.h"
 #include "BoidEntity.h"
+#include "GameManager.h"
 
 Entity* Entity::instantiateEntity(StringName type, Ref<EntityProperties> properties, Vector2 position) {
     switch (properties->type) {
@@ -23,8 +24,8 @@ StringName Entity::getCurrentTile(GameState& gameState) {
     return gameState.getTile(position.round());
 }
 
-GameState::GameState(Vector2i size, double simSpeed)
-        : grid(size), simSpeed(simSpeed) {}
+GameState::GameState(GameManager* gameManager, Vector2i size, double simSpeed)
+        : gameManager(gameManager), grid(size), simSpeed(simSpeed) {}
 
 void GameState::generateFrame(Ref<Image> image) {
     // Write material colors
@@ -74,6 +75,8 @@ void GameState::processNearbyEntities(Vector2 position, double radius, const std
 Ref<JSON> GameState::exportData() {
     Dictionary data;
 
+    data["config"] = configFile;
+
     Array size;
     size.append(grid.size.x);
     size.append(grid.size.y);
@@ -114,6 +117,10 @@ void GameState::importData(Ref<JSON> json) {
     Array size = data.get_or_add("size", Array());
     if (size.size() != 2) { return; }
     clearGrid({size[0], size[1]});
+
+    if (data.has("config")) {
+        gameManager->importConfig(data["config"]);
+    };
 
     Array gridData = data.get_or_add("grid", Array());
     for (int y = 0; y < grid.size.y; ++y) {

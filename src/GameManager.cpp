@@ -48,7 +48,7 @@ void GameManager::importConfig(String p_file) {
 
     Materials mats(materials);
     Entities ents(entities, entityConfig);
-    gameState->setConfig(mats, ents);
+    gameState->setConfig(p_file, mats, ents);
     selectionMenu->setContents(mats, ents);
 }
 
@@ -75,7 +75,7 @@ void GameManager::_ready() {
         return;
     }
 
-    gameState = std::make_unique<GameState>(gridSize, simSpeed);
+    gameState = std::make_unique<GameState>(this, gridSize, simSpeed);
 
     selectionMenu = get_node<SelectionMenu>("%SelectionMenu");
     DEV_ASSERT(selectionMenu);
