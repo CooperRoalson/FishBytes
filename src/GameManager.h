@@ -13,9 +13,11 @@ class GameManager : public Node2D {
     FileMenu* fileMenu = nullptr;
 
     std::unique_ptr<GameState> gameState;
+    std::deque<std::unique_ptr<GameState>> previousStates;
 
     Vector2i gridSize = {50, 50};
     double simSpeed = 14.0;
+    int maxUndoSaves = 5;
 
     bool isMouseDown = false;
 
@@ -40,13 +42,17 @@ public:
     int get_height() const;
     void setSimSpeed(double p_speed);
     double getSimSpeed() const;
+    void setMaxUndoSaves(int p_saves);
+    int getMaxUndoSaves() const;
     void setDefaultConfig(String p_file);
     String getDefaultConfig() const;
 
     void exportData(String p_file);
     void importData(String p_file);
-    void importConfig(String p_file);
+    void importConfig(String p_file, bool undoable);
 
+    void saveState();
+    void undo();
     void clearGrid();
 };
 

@@ -161,6 +161,11 @@ text = "Edit"
 label_settings = SubResource("LabelSettings_77542")
 horizontal_alignment = 1
 
+[node name="Undo Button" type="Button" parent="VBoxContainer/Panel3/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Undo"
+
 [node name="Clear Button" type="Button" parent="VBoxContainer/Panel3/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

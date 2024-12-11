@@ -90,6 +90,7 @@ public:
 
     StringName getType() { return type; }
     Vector2 getPosition() { return position; }
+    Ref<EntityProperties> getProperties() { return properties; }
     StringName getCurrentTile(GameState& gameState);
     bool isDead() { return dead; }
 };
@@ -189,6 +190,8 @@ public:
 
     Ref<JSON> exportData();
     void importData(Ref<JSON> data);
+
+    std::unique_ptr<GameState> clone();
 };
 
 

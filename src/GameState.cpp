@@ -119,7 +119,7 @@ void GameState::importData(Ref<JSON> json) {
     clearGrid({size[0], size[1]});
 
     if (data.has("config")) {
-        gameManager->importConfig(data["config"]);
+        gameManager->importConfig(data["config"], false);
     };
 
     Array gridData = data.get_or_add("grid", Array());
@@ -143,4 +143,20 @@ void GameState::importData(Ref<JSON> json) {
         if (position.size() != 2) { continue; }
         spawnEntity({position[0], position[1]}, type);
     }
+}
+
+std::unique_ptr<GameState> GameState::clone() {
+    std::unique_ptr<GameState> result = std::make_unique<GameState>(gameManager, grid.size, simSpeed);
+
+    result->setConfig(configFile, materials, entities);
+    for (int y = 0; y < grid.size.y; ++y) {
+        for (int x = 0; x < grid.size.x; ++x) {
+            result->grid[x, y] = grid[x, y];
+        }
+    }
+    for (auto* e : entityInstances) {
+        result->entityInstances.push_back(Entity::instantiateEntity(e->getType(), e->getProperties(), e->getPosition()));
+    }
+
+    return result;
 }

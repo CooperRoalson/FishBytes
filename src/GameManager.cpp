@@ -11,14 +11,19 @@ void GameManager::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_sim_speed"), &GameManager::getSimSpeed);
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "sim_speed", PROPERTY_HINT_RANGE, "0.1, 20, or_greater"), "set_sim_speed", "get_sim_speed");
 
+    ClassDB::bind_method(D_METHOD("set_max_undo_saves", "p_saves"), &GameManager::setMaxUndoSaves);
+    ClassDB::bind_method(D_METHOD("get_max_undo_saves"), &GameManager::getMaxUndoSaves);
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "max_undo_saves", PROPERTY_HINT_RANGE, "1, 10, or_greater"), "set_max_undo_saves", "get_max_undo_saves");
+
     ClassDB::bind_method(D_METHOD("set_default_config", "p_file"), &GameManager::setDefaultConfig);
     ClassDB::bind_method(D_METHOD("get_default_config"), &GameManager::getDefaultConfig);
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "default_config", PROPERTY_HINT_FILE), "set_default_config", "get_default_config");
 
     ClassDB::bind_method(D_METHOD("export_data", "p_file"), &GameManager::exportData);
     ClassDB::bind_method(D_METHOD("import_data", "p_file"), &GameManager::importData);
-    ClassDB::bind_method(D_METHOD("import_config", "p_file"), &GameManager::importConfig);
+    ClassDB::bind_method(D_METHOD("import_config", "p_file", "undoable"), &GameManager::importConfig);
 
+    ClassDB::bind_method(D_METHOD("undo"), &GameManager::undo);
     ClassDB::bind_method(D_METHOD("clear_grid"), &GameManager::clearGrid);
 }
 
@@ -31,15 +36,20 @@ void GameManager::setSimSpeed(double p_speed) {
 }
 double GameManager::getSimSpeed() const { return simSpeed; }
 
+void GameManager::setMaxUndoSaves(int p_saves) { maxUndoSaves = p_saves; }
+int GameManager::getMaxUndoSaves() const { return maxUndoSaves; }
+
 void GameManager::setDefaultConfig(String p_file) { defaultConfig = p_file; }
 String GameManager::getDefaultConfig() const { return defaultConfig; }
 
-void GameManager::importConfig(String p_file) {
+void GameManager::importConfig(String p_file, bool undoable) {
     Ref<JSON> json = ResourceLoader::get_singleton()->load(p_file, "JSON");
     if (json.is_null()) {
         UtilityFunctions::printerr("Failed to load config file: ", p_file);
         return;
     }
+
+    if (undoable) { saveState(); }
 
     Dictionary config = Dictionary(json->get_data());
     Dictionary materials = config.get_or_add("materials", Dictionary());
@@ -52,7 +62,29 @@ void GameManager::importConfig(String p_file) {
     selectionMenu->setContents(mats, ents);
 }
 
-void GameManager::clearGrid() { gameState->clearGrid(); }
+void GameManager::saveState() {
+    previousStates.push_back(gameState->clone());
+    if (previousStates.size() > maxUndoSaves) {
+        previousStates.pop_front();
+    }
+}
+
+void GameManager::undo() {
+    if (previousStates.empty()) {
+        return;
+    }
+
+    std::unique_ptr<GameState> previous = std::move(previousStates.back());
+    previousStates.pop_back();
+    gameState = std::move(previous);
+    gameState->setSimSpeed(simSpeed);
+    selectionMenu->setContents(gameState->getMaterials(), gameState->getEntities());
+}
+
+void GameManager::clearGrid() {
+    saveState();
+    gameState->clearGrid();
+}
 
 void GameManager::exportData(String p_file) {
     Error e = ResourceSaver::get_singleton()->save(gameState->exportData(), p_file);
@@ -67,6 +99,7 @@ void GameManager::importData(String p_file) {
         UtilityFunctions::printerr("Failed to load config file: ", p_file);
         return;
     }
+    saveState();
     gameState->importData(json);
 }
 
@@ -79,15 +112,16 @@ void GameManager::_ready() {
 
     selectionMenu = get_node<SelectionMenu>("%SelectionMenu");
     DEV_ASSERT(selectionMenu);
+    selectionMenu->connect("undo", Callable(this, "undo"));
     selectionMenu->connect("clear_grid", Callable(this, "clear_grid"));
 
-    importConfig(defaultConfig);
+    importConfig(defaultConfig, false);
 
     fileMenu = get_node<FileMenu>("%FileMenu");
     DEV_ASSERT(fileMenu);
     fileMenu->connect("export_data", Callable(this, "export_data"));
     fileMenu->connect("import_data", Callable(this, "import_data"));
-    fileMenu->connect("import_config", Callable(this, "import_config"));
+    fileMenu->connect("import_config", Callable(this, "import_config").bind(true));
 
 
     canvas = get_node<MeshInstance2D>("%Canvas");
@@ -139,6 +173,10 @@ void GameManager::handleMouseInput(double delta) {
 
         if (mousePos.x < 0 || mousePos.y < 0 || mousePos.x >= gridSize.x || mousePos.y >= gridSize.y) {
             return;
+        }
+
+        if (!wasMouseDown) {
+            saveState();
         }
 
         if (selectionMenu->isEntitySelected()) {

@@ -77,6 +77,7 @@ public:
 
     bool isEntitySelected() const { return entitySelected; }
 
+    void undo() { emit_signal("undo"); }
     void clearGrid() { emit_signal("clear_grid"); }
 };
 
