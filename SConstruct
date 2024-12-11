@@ -4,6 +4,7 @@ import os
 import sys
 
 env = SConscript("godot-cpp/SConstruct")
+env.PrependENVPath('PATH', '/u/gheith/public/cs439/bin') # If on lab machines, use an updated g++
 
 env.Append(CXXFLAGS='-std=c++23')
 SetOption('experimental', 'ninja')

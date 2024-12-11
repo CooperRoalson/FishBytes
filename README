@@ -1,0 +1,18 @@
+Our final executable is in FishBytes/Project/export (available as a zip at FishBytes/Project/export.zip).
+Simply cd into the export folder and execute FishBytes.x86_64.
+
+NOTE: this requires a newer version of libstdc++ than the lab machines have installed, so we've included a
+version of it in the export folder. Because of this, your HAVE to use export as your working directory, or
+our extension will fail to link with libstdc++ and the canvas will simply render as a purple missing texture.
+
+We used C++23 features, but the lab machines have old versions of G++ and libstdc++, so we're using
+Dr. Gheith's versions (found in /u/gheith/public/cs439). To build and run our project yourself:
+(Assuming you're in the root FishBytes folder on a lab machine)
+    scons
+    cd Project
+    export LD_LIBRARY_PATH=/u/gheith/public/cs439/lib64:$LD_LIBRARY_PATH
+    godot
+
+Launching the editor (on the lab machines) also requires setting the library path so it can link:
+    export LD_LIBRARY_PATH=/u/gheith/public/cs439/lib64:$LD_LIBRARY_PATH
+    godot --editor Project/project.godot
