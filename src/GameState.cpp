@@ -24,8 +24,8 @@ StringName Entity::getCurrentTile(GameState& gameState) {
     return gameState.getTile(position.round());
 }
 
-GameState::GameState(GameManager* gameManager, Vector2i size, double simSpeed)
-        : gameManager(gameManager), grid(size), simSpeed(simSpeed) {}
+GameState::GameState(GameManager* gameManager, Vector2i size, double tileSpeed, double entitySpeed)
+        : gameManager(gameManager), grid(size), tileSpeed(tileSpeed), entitySpeed(entitySpeed) {}
 
 void GameState::generateFrame(Ref<Image> image) {
     // Write material colors
@@ -45,7 +45,7 @@ void GameState::generateFrame(Ref<Image> image) {
 
 void GameState::process(double delta) {
     // Process tiles (based on simSpeed)
-    double timePerFrame = 1.0 / simSpeed;
+    double timePerFrame = 1.0 / tileSpeed;
     timeSinceLastFrame += delta;
     while (timeSinceLastFrame > timePerFrame) {
         MaterialSimulator::process(grid, materials);
@@ -53,6 +53,7 @@ void GameState::process(double delta) {
     }
 
     // Process entities
+    delta *= entitySpeed;
     for (int i = 0; i < entityInstances.size(); ++i) {
         entityInstances[i]->process(delta, *this);
         if (entityInstances[i]->isDead()) {
@@ -146,7 +147,7 @@ void GameState::importData(Ref<JSON> json) {
 }
 
 std::unique_ptr<GameState> GameState::clone() {
-    std::unique_ptr<GameState> result = std::make_unique<GameState>(gameManager, grid.size, simSpeed);
+    std::unique_ptr<GameState> result = std::make_unique<GameState>(gameManager, grid.size, tileSpeed, entitySpeed);
 
     result->setConfig(configFile, materials, entities);
     for (int y = 0; y < grid.size.y; ++y) {

@@ -8,6 +8,8 @@
 [sub_resource type="ImageTexture" id="ImageTexture_ldwnh"]
 
 [node name="Main" type="GameManager"]
+width = Vector2i(60, 60)
+max_undo_saves = 10
 
 [node name="Border" type="ColorRect" parent="."]
 offset_left = 330.0

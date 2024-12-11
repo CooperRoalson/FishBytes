@@ -131,9 +131,9 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 min_value = 1.0
-max_value = 10.0
-value = 4.0
-tick_count = 10
+max_value = 12.0
+value = 7.0
+tick_count = 12
 
 [node name="Density Label" type="Label" parent="VBoxContainer/Panel2/VBoxContainer"]
 layout_mode = 2
@@ -147,6 +147,18 @@ layout_mode = 2
 max_value = 4.0
 step = 0.1
 value = 2.5
+
+[node name="Speed Label" type="Label" parent="VBoxContainer/Panel2/VBoxContainer"]
+layout_mode = 2
+text = "Simulation Speed"
+label_settings = SubResource("LabelSettings_4bks4")
+horizontal_alignment = 1
+
+[node name="Speed Slider" type="HSlider" parent="VBoxContainer/Panel2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 50.0
+value = 18.0
 
 [node name="Panel3" type="PanelContainer" parent="VBoxContainer"]
 layout_mode = 2

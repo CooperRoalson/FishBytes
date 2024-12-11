@@ -105,12 +105,12 @@ class GameState {
     Grid grid;
     std::vector<Entity*> entityInstances;
 
-    double simSpeed;
+    double tileSpeed, entitySpeed;
     double timeSinceLastFrame = 0.0;
 
 public:
 
-    GameState(GameManager* gameManager, Vector2i size, double simSpeed);
+    GameState(GameManager* gameManager, Vector2i size, double tileSpeed, double entitySpeed);
 
     ~GameState() {
         for (auto* e : entityInstances) {
@@ -124,8 +124,9 @@ public:
         this->entities = entities;
     }
 
-    void setSimSpeed(double speed) {
-        simSpeed = speed;
+    void setSimSpeed(double tileSpeed, double entitySpeed) {
+        this->tileSpeed = tileSpeed;
+        this->entitySpeed = entitySpeed;
     }
 
     void generateFrame(Ref<Image> image);

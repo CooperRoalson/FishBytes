@@ -23,6 +23,7 @@ class SelectionMenu : public Control {
 
     Slider* brushRadiusSlider = nullptr;
     Slider* brushDensitySlider = nullptr;
+    Slider* speedSlider = nullptr;
 
 protected:
     static void _bind_methods();
@@ -73,10 +74,15 @@ public:
         return brushDensitySlider->get_value();
     }
 
+    double getSimulationSpeed() const {
+        return speedSlider->get_value();
+    }
+
     StringName getSelected() const { return selected; }
 
     bool isEntitySelected() const { return entitySelected; }
 
+    void speedChanged() { emit_signal("speed_changed"); }
     void undo() { emit_signal("undo"); }
     void clearGrid() { emit_signal("clear_grid"); }
 };

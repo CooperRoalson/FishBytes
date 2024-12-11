@@ -16,7 +16,7 @@ class GameManager : public Node2D {
     std::deque<std::unique_ptr<GameState>> previousStates;
 
     Vector2i gridSize = {50, 50};
-    double simSpeed = 14.0;
+    double baseSimSpeed = 15.0;
     int maxUndoSaves = 5;
 
     bool isMouseDown = false;
@@ -40,8 +40,6 @@ public:
     Vector2i getGridSize() const;
     void set_height(int p_height);
     int get_height() const;
-    void setSimSpeed(double p_speed);
-    double getSimSpeed() const;
     void setMaxUndoSaves(int p_saves);
     int getMaxUndoSaves() const;
     void setDefaultConfig(String p_file);
@@ -52,6 +50,7 @@ public:
     void importConfig(String p_file, bool undoable);
 
     void saveState();
+    void speedChanged();
     void undo();
     void clearGrid();
 };

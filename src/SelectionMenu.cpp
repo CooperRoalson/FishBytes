@@ -6,9 +6,11 @@ void SelectionMenu::_bind_methods() {
     ClassDB::bind_method(D_METHOD("on_button_pressed", "button", "clicked", "clickedName", "isEntity"), &SelectionMenu::onButtonPressed);
     ClassDB::bind_method(D_METHOD("on_button_hovered", "hovered", "hoveredName"), &SelectionMenu::onButtonHovered);
     ClassDB::bind_method(D_METHOD("on_button_exited"), &SelectionMenu::onButtonExited);
+    ClassDB::bind_method(D_METHOD("speed_changed"), &SelectionMenu::speedChanged);
     ClassDB::bind_method(D_METHOD("undo"), &SelectionMenu::undo);
     ClassDB::bind_method(D_METHOD("clear_grid"), &SelectionMenu::clearGrid);
 
+    ADD_SIGNAL(MethodInfo("speed_changed"));
     ADD_SIGNAL(MethodInfo("undo"));
     ADD_SIGNAL(MethodInfo("clear_grid"));
 }
@@ -45,6 +47,10 @@ void SelectionMenu::_ready() {
 
     brushDensitySlider = get_node<Slider>("%Density Slider");
     DEV_ASSERT(brushDensitySlider);
+
+    speedSlider = get_node<Slider>("%Speed Slider");
+    DEV_ASSERT(speedSlider);
+    speedSlider->connect("value_changed", Callable(this, "speed_changed").unbind(1));
 
     Button* undoButton = get_node<Button>("%Undo Button");
     DEV_ASSERT(undoButton);

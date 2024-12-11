@@ -7,10 +7,6 @@ void GameManager::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_grid_size"), &GameManager::getGridSize);
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "width"), "set_grid_size", "get_grid_size");
 
-    ClassDB::bind_method(D_METHOD("set_sim_speed", "p_speed"), &GameManager::setSimSpeed);
-    ClassDB::bind_method(D_METHOD("get_sim_speed"), &GameManager::getSimSpeed);
-    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "sim_speed", PROPERTY_HINT_RANGE, "0.1, 20, or_greater"), "set_sim_speed", "get_sim_speed");
-
     ClassDB::bind_method(D_METHOD("set_max_undo_saves", "p_saves"), &GameManager::setMaxUndoSaves);
     ClassDB::bind_method(D_METHOD("get_max_undo_saves"), &GameManager::getMaxUndoSaves);
     ADD_PROPERTY(PropertyInfo(Variant::INT, "max_undo_saves", PROPERTY_HINT_RANGE, "1, 10, or_greater"), "set_max_undo_saves", "get_max_undo_saves");
@@ -23,18 +19,13 @@ void GameManager::_bind_methods() {
     ClassDB::bind_method(D_METHOD("import_data", "p_file"), &GameManager::importData);
     ClassDB::bind_method(D_METHOD("import_config", "p_file", "undoable"), &GameManager::importConfig);
 
+    ClassDB::bind_method(D_METHOD("speed_changed"), &GameManager::speedChanged);
     ClassDB::bind_method(D_METHOD("undo"), &GameManager::undo);
     ClassDB::bind_method(D_METHOD("clear_grid"), &GameManager::clearGrid);
 }
 
 void GameManager::setGridSize(Vector2i p_size) { gridSize = p_size; }
 Vector2i GameManager::getGridSize() const { return gridSize; }
-
-void GameManager::setSimSpeed(double p_speed) {
-    simSpeed = p_speed;
-    if (gameState) { gameState->setSimSpeed(simSpeed); }
-}
-double GameManager::getSimSpeed() const { return simSpeed; }
 
 void GameManager::setMaxUndoSaves(int p_saves) { maxUndoSaves = p_saves; }
 int GameManager::getMaxUndoSaves() const { return maxUndoSaves; }
@@ -69,6 +60,11 @@ void GameManager::saveState() {
     }
 }
 
+void GameManager::speedChanged() {
+    double speed = selectionMenu->getSimulationSpeed();
+    gameState->setSimSpeed(speed, speed/baseSimSpeed);
+}
+
 void GameManager::undo() {
     if (previousStates.empty()) {
         return;
@@ -77,8 +73,8 @@ void GameManager::undo() {
     std::unique_ptr<GameState> previous = std::move(previousStates.back());
     previousStates.pop_back();
     gameState = std::move(previous);
-    gameState->setSimSpeed(simSpeed);
     selectionMenu->setContents(gameState->getMaterials(), gameState->getEntities());
+    speedChanged();
 }
 
 void GameManager::clearGrid() {
@@ -108,14 +104,17 @@ void GameManager::_ready() {
         return;
     }
 
-    gameState = std::make_unique<GameState>(this, gridSize, simSpeed);
+    gameState = std::make_unique<GameState>(this, gridSize, 0, 1.0);
 
     selectionMenu = get_node<SelectionMenu>("%SelectionMenu");
     DEV_ASSERT(selectionMenu);
+    selectionMenu->connect("speed_changed", Callable(this, "speed_changed"));
     selectionMenu->connect("undo", Callable(this, "undo"));
     selectionMenu->connect("clear_grid", Callable(this, "clear_grid"));
+    baseSimSpeed = selectionMenu->getSimulationSpeed();
 
     importConfig(defaultConfig, false);
+    speedChanged();
 
     fileMenu = get_node<FileMenu>("%FileMenu");
     DEV_ASSERT(fileMenu);
