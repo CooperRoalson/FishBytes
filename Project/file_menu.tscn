@@ -1,5 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dq63bq46m70d"]
 
+[ext_resource type="Theme" uid="uid://c6owr2f8ul4il" path="res://theme.tres" id="1_l7pu7"]
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r0sv3"]
 bg_color = Color(0.442836, 0.598377, 0.88283, 1)
 border_width_left = 2
@@ -16,17 +18,18 @@ expand_margin_top = 4.0
 expand_margin_right = 6.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="SystemFont" id="SystemFont_5h64a"]
-subpixel_positioning = 0
-
 [sub_resource type="LabelSettings" id="LabelSettings_77542"]
-font = SubResource("SystemFont_5h64a")
 font_size = 26
 font_color = Color(0, 0, 0, 1)
 
 [node name="FileMenu" type="FileMenu"]
 offset_right = 40.0
 offset_bottom = 40.0
+theme = ExtResource("1_l7pu7")
+
+[node name="PopupPanel" type="PopupPanel" parent="."]
+auto_translate_mode = 1
+initial_position = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0

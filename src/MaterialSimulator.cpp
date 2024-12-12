@@ -14,7 +14,7 @@ void MaterialSimulator::process(Grid &grid, Materials &materials) {
 }
 
 void MaterialSimulator::processTile(Grid &grid, int x, int y, Materials &materials) {
-    auto mat = grid[x, y];
+    auto mat = grid[x, y].material;
 
     if (mat.is_empty()) {
         return;
@@ -30,16 +30,16 @@ void MaterialSimulator::processTile(Grid &grid, int x, int y, Materials &materia
         case MaterialProperties::GRAVITY:
             // basic falling sand game physics
             if (y > 0) {
-                auto below = grid[x, y - 1];
-                if (!materials.getProperties(below)->isSolid() && !grid.wasUpdated(x, y - 1)) {
+                auto below_mat = grid[x, y - 1].material;
+                if (!materials.getProperties(below_mat)->isSolid() && !grid.wasUpdated(x, y - 1)) {
                     grid.swapTiles(x, y, x, y - 1);
                 } else {
                     // try to flow bottom left or bottom right
-                    if (x > 0 && !materials.getProperties(grid[x - 1, y - 1])->isSolid() && !grid.wasUpdated(x - 1, y - 1)) {
+                    if (x > 0 && !materials.getProperties(grid[x - 1, y - 1].material)->isSolid() && !grid.wasUpdated(x - 1, y - 1)) {
                         grid.swapTiles(x, y, x - 1, y - 1);
                         break;
                     }
-                    if (x < grid.size.x - 1 && !materials.getProperties(grid[x + 1, y - 1])->isSolid() && !grid.wasUpdated(x + 1, y - 1)) {
+                    if (x < grid.size.x - 1 && !materials.getProperties(grid[x + 1, y - 1].material)->isSolid() && !grid.wasUpdated(x + 1, y - 1)) {
                         grid.swapTiles(x, y, x + 1, y - 1);
                         break;
                     }
@@ -50,25 +50,25 @@ void MaterialSimulator::processTile(Grid &grid, int x, int y, Materials &materia
         case MaterialProperties::FLUID: {
             // check directly below first
             if (y > 0) {
-                auto below = grid[x, y - 1];
-                if (materials.getProperties(below)->type == MaterialProperties::EMPTY) {
+                auto below_mat = grid[x, y - 1].material;
+                if (materials.getProperties(below_mat)->type == MaterialProperties::EMPTY) {
                     grid.swapTiles(x, y, x, y - 1);
                     break;
                 }
 
                 // if can't move straight down, try diagonal down
                 if (x > 0) {
-                    auto belowLeft = grid[x - 1, y - 1];
+                    auto belowLeftMat = grid[x - 1, y - 1].material;
                     if (!grid.wasUpdated(x - 1, y - 1) &&
-                        materials.getProperties(belowLeft)->type == MaterialProperties::EMPTY) {
+                        materials.getProperties(belowLeftMat)->type == MaterialProperties::EMPTY) {
                         grid.swapTiles(x, y, x - 1, y - 1);
                         break;
                     }
                 }
                 if (x < grid.size.x - 1) {
-                    auto belowRight = grid[x + 1, y - 1];
+                    auto belowRightMaterial = grid[x + 1, y - 1].material;
                     if (!grid.wasUpdated(x + 1, y - 1) &&
-                        materials.getProperties(belowRight)->type == MaterialProperties::EMPTY) {
+                        materials.getProperties(belowRightMaterial)->type == MaterialProperties::EMPTY) {
                         grid.swapTiles(x, y, x + 1, y - 1);
                         break;
                     }
@@ -77,9 +77,9 @@ void MaterialSimulator::processTile(Grid &grid, int x, int y, Materials &materia
 
             // if can't move down at all, spread horizontally
             bool canFlowLeft = x > 0 && !grid.wasUpdated(x - 1, y) &&
-                               materials.getProperties(grid[x - 1, y])->type == MaterialProperties::EMPTY;
+                               materials.getProperties(grid[x - 1, y].material)->type == MaterialProperties::EMPTY;
             bool canFlowRight = x < grid.size.x - 1 && !grid.wasUpdated(x + 1, y) &&
-                                materials.getProperties(grid[x + 1, y])->type == MaterialProperties::EMPTY;
+                                materials.getProperties(grid[x + 1, y].material)->type == MaterialProperties::EMPTY;
 
             if (canFlowLeft && canFlowRight) {
                 // randomly choose direction if both are available

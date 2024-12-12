@@ -39,8 +39,8 @@ void BoidEntity::process(double delta, GameState& gameState) {
         return;
     } else if (curTile->isSolid()) {
         // TODO: don't hard-code this
-        if (config->food.has(getCurrentTile(gameState))) {
-            gameState.setTile(position.round(), "");
+        if (config->food.has(getCurrentTile(gameState).material)) {
+            gameState.setTile(position.round(), Pixel{});
         } else {
             dead = true;
             return;
@@ -116,7 +116,7 @@ void BoidEntity::process(double delta, GameState& gameState) {
     for (int x = -config->visionRadius; x <= config->visionRadius; ++x) {
         for (int y = -config->visionRadius; y <= config->visionRadius; ++y) {
             Vector2i pos = posI + Vector2i(x, y);
-            StringName mat = gameState.getTile(pos);
+            StringName mat = gameState.getTile(pos).material;
             Ref<MaterialProperties> properties = gameState.getMaterialProperties(mat);
 
             Vector2 diff = pos - position;
@@ -144,7 +144,7 @@ void BoidEntity::process(double delta, GameState& gameState) {
 
     // Eat food
     Vector2 newPos = position + velocity * delta;
-    if (config->food.has(gameState.getTile(newPos.round()))) {
+    if (config->food.has(gameState.getTile(newPos.round()).material)) {
         gameState.setTile(newPos.round(), "");
     }
 

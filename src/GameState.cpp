@@ -5,7 +5,7 @@
 #include "BoidEntity.h"
 #include "GameManager.h"
 
-Entity* Entity::instantiateEntity(StringName type, Ref<EntityProperties> properties, Vector2 position) {
+Entity* Entity::instantiateEntity(const StringName &type, Ref<EntityProperties> properties, Vector2 position) {
     switch (properties->type) {
         case EntityProperties::STATIC:
             return new Entity(type, properties, position);
@@ -21,7 +21,7 @@ void Entity::render(Ref<Image> image) {
     image->set_pixel(pos.x, pos.y, properties->color);
 }
 
-StringName Entity::getCurrentTile(GameState& gameState) {
+Pixel Entity::getCurrentTile(const GameState& gameState) const {
     return gameState.getTile(position.round());
 }
 
@@ -52,13 +52,23 @@ bool Entity::move(Vector2 vel, GameState& gameState, bool canGoInAir) {
 GameState::GameState(GameManager* gameManager, Vector2i size, double tileSpeed, double entitySpeed)
         : gameManager(gameManager), grid(size), tileSpeed(tileSpeed), entitySpeed(entitySpeed) {}
 
-void GameState::generateFrame(Ref<Image> image) {
+void GameState::generateFrame(const Ref<Image>& image) {
     // Write material colors
     for (int x = 0; x < grid.size.x; ++x) {
         for (int y = 0; y < grid.size.y; ++y) {
-            auto mat = grid[x, y];
-            Ref<MaterialProperties> properties = materials.getProperties(mat);
-            image->set_pixel(x, y, properties->color);
+            auto pixel = grid[x, y];
+            const Ref<MaterialProperties> properties = materials.getProperties(pixel.material);
+            Color color = properties->color;
+
+            if (!properties->isFluid()) {
+                if (pixel.colorOffset < 0) {
+                    color = color.darkened(static_cast<float>(pixel.colorOffset * 0.03));
+                } else {
+                    color = color.lightened(static_cast<float>(pixel.colorOffset * 0.03));
+                }
+            }
+
+            image->set_pixel(x, y, color);
         }
     }
 
@@ -91,7 +101,7 @@ void GameState::process(double delta) {
 
 void GameState::processNearbyEntities(Vector2 position, double radius, const std::function<void(Entity&)>& callback) {
     // Could use spatial partition
-    for (auto& e : entityInstances) {
+    for (const auto& e : entityInstances) {
         if ((e->getPosition() - position).length_squared() <= radius * radius) {
             callback(*e);
         }
@@ -108,7 +118,7 @@ Ref<JSON> GameState::exportData() {
     gridData.resize(grid.size.x * grid.size.y);
     for (int y = 0; y < grid.size.y; ++y) {
         for (int x = 0; x < grid.size.x; ++x) {
-            gridData[y * grid.size.x + x] = grid[x, y];
+            gridData[y * grid.size.x + x] = grid[x, y].material;
         }
     }
     data["grid"] = gridData;
@@ -144,7 +154,7 @@ void GameState::importData(Ref<JSON> json) {
             if (i >= gridData.size()) {
                 break;
             }
-            grid[x, y] = gridData[i];
+            grid[x, y] = Pixel{gridData[i]};
         }
     }
 

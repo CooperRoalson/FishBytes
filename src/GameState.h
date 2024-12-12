@@ -2,6 +2,7 @@
 #define GAMESTATE_H
 
 #include <bitset>
+#include <utility>
 
 #include "Entities.h"
 #include "godot_includes.h"
@@ -11,15 +12,24 @@
 class GameManager;
 
 struct Pixel {
-    StringName material;
+    StringName material{""};
+    char colorOffset{0};
+
+    explicit Pixel(StringName material)
+        : material(std::move(material)) {
+        // set to random color offset between -3 and 3
+        colorOffset = static_cast<char>(UtilityFunctions::randi_range(-3, 3));
+    }
+
+    explicit Pixel() = default;
 };
 
 struct Grid {
-    std::vector<StringName> data;
+    std::vector<Pixel> data;
     std::vector<bool> updated;
     Vector2i size;
 
-    StringName& operator[](const int x, const int y) {
+    Pixel& operator[](const int x, const int y) {
         if(x < 0 || x >= size.x && y < 0 && y >= size.y) {
             UtilityFunctions::printerr("Accessing invalid tile ", x, ", ", y);
             DEV_ASSERT(false);
@@ -27,13 +37,13 @@ struct Grid {
         return data[y * size.x + x];
     }
 
-    const StringName& operator[](int x, int y) const {
+    const Pixel& operator[](int x, int y) const {
         DEV_ASSERT(x >= 0 && x < size.x && y >= 0 && y < size.y);
         return data[y * size.x + x];
     }
 
     bool wasUpdated(const int x, const int y) {
-        return updated[y * size.x + x] && (*this)[x,y] != StringName("");
+        return updated[y * size.x + x] && ((*this)[x,y]).material != StringName("");
     }
 
     void setUpdated(const int x, const int y) {
@@ -66,7 +76,7 @@ struct Grid {
         updated.resize(size.x * size.y);
     }
 
-    Grid(Vector2i size) : size(size), data(size.x * size.y), updated(size.x * size.y) {}
+    explicit Grid(Vector2i size) : data(size.x * size.y), updated(size.x * size.y), size(size) {}
 };
 
 class GameState;
@@ -83,15 +93,15 @@ protected:
 public:
     virtual ~Entity() = default;
 
-    static Entity* instantiateEntity(StringName type, Ref<EntityProperties> properties, Vector2 position);
+    static Entity* instantiateEntity(const StringName &type, Ref<EntityProperties> properties, Vector2 position);
 
     virtual void render(Ref<Image> image);
     virtual void process(double delta, GameState& gameState) {}
 
     StringName getType() { return type; }
-    Vector2 getPosition() { return position; }
+    Vector2 getPosition() const { return position; }
     Ref<EntityProperties> getProperties() { return properties; }
-    StringName getCurrentTile(GameState& gameState);
+    Pixel getCurrentTile(const GameState& gameState) const;
     bool isDead() { return dead; }
     void die() { dead = true;}
     bool move(Vector2 vel, GameState& gameState, bool canGoInAir = false);
@@ -131,7 +141,7 @@ public:
         this->entitySpeed = entitySpeed;
     }
 
-    void generateFrame(Ref<Image> image);
+    void generateFrame(const Ref<Image>& image);
 
     void process(double delta);
 
@@ -143,32 +153,38 @@ public:
         return materials.getProperties(mat);
     }
 
+    Ref<MaterialProperties> getMaterialProperties(const Pixel& p) {
+        return materials.getProperties(p.material);
+    }
+
     Vector2i getDimensions() const { return grid.size; }
 
-    bool isInBounds(Vector2i pos) const {
+    [[nodiscard]] bool isInBounds(const Vector2i pos) const {
         return pos.x >= 0 && pos.x < grid.size.x && pos.y >= 0 && pos.y < grid.size.y;
     }
 
-    StringName getTile(Vector2i const& pos) const {
+    [[nodiscard]] Pixel getTile(Vector2i const& pos) const {
         if (isInBounds(pos)) {
             return grid[pos.x, pos.y];
         }
-        return "";
+        UtilityFunctions::printerr("Accessing invalid tile ", pos.x, ", ", pos.y);
+        return Pixel{""};
     }
 
-    void setTile(Vector2i pos, StringName type) {
+    void setTile(Vector2i pos, const Pixel& p) {
+        StringName type = p.material;
         if (isInBounds(pos)) {
             if (materials.getProperties(type).is_null()) {
                 UtilityFunctions::printerr("Invalid mateiral type: ", type);
                 return;
             }
-            grid[pos.x, pos.y] = type;
+            grid[pos.x, pos.y] = p;
         }
     }
 
-    void spawnEntity(Vector2i pos, StringName type) {
+    void spawnEntity(const Vector2i pos, const StringName& type) {
         if (isInBounds(pos)) {
-            auto properties = entities.getProperties(type);
+            const auto properties = entities.getProperties(type);
             if (properties.is_null()) {
                 UtilityFunctions::printerr("Invalid entity type: ", type);
                 return;
