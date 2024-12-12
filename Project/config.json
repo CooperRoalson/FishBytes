@@ -89,63 +89,68 @@
 					"dir": "Vector2(1, 0)"
 				},
 				"root": {
-					"type": "repeat_while",
+					"type": "enforce_swimming",
+					"gravity": {"value": 10},
 					"child": {
-						"type": "sequence",
-						"children": [
-							{
-								"type": "repeat_while",
-								"child": {
-									"type": "sequence",
-									"children": [
-										{
-											"type": "invert",
-											"child": {
-												"type": "search_for_tile",
-												"radius": {"value": 10},
-												"target": {"value": "food"},
-												"result_key": "food"
-											}
-										},
-										{
-											"type": "selector",
-											"children": [
-												{
-													"type": "move",
-													"speed": {"value": 1.0},
-													"target": {"key": "dir"},
-													"relative": true
-												},
-												{
-													"type": "operation",
-													"operation": "*",
-													"operand1": {"key": "dir"},
-													"operand2": {"value": -1},
-													"result_key": "dir"
+						"type": "repeat_while",
+						"child": {
+							"type": "sequence",
+							"children": [
+								{
+									"type": "repeat_while",
+									"child": {
+										"type": "sequence",
+										"children": [
+											{
+												"type": "invert",
+												"child": {
+													"type": "search_for_tile",
+													"require_line_of_sight": true,
+													"radius": {"value": 10},
+													"target": {"value": "food"},
+													"result_key": "food"
 												}
-											]
-										}
-									]
+											},
+											{
+												"type": "selector",
+												"children": [
+													{
+														"type": "move",
+														"speed": {"value": 1.0},
+														"target": {"key": "dir"},
+														"relative": true
+													},
+													{
+														"type": "operation",
+														"operation": "*",
+														"operand1": {"key": "dir"},
+														"operand2": {"value": -1},
+														"result_key": "dir"
+													}
+												]
+											}
+										]
+									}
+								},
+								{
+									"type": "get_property",
+									"property": "position",
+									"result_key": "oldPos"
+								},
+								{
+									"type": "move",
+									"speed": {"value": 7.0},
+									"target": {"key": "food"},
+									"fail_when_blocked": false
+								},
+								{
+									"type": "move",
+									"speed": {"value": 7.0},
+									"target": {"key": "oldPos"},
+									"fail_when_blocked": false
 								}
-							},
-							{
-								"type": "get_property",
-								"property": "position",
-								"result_key": "oldPos"
-							},
-							{
-								"type": "move",
-								"speed": {"value": 7.0},
-								"target": {"key": "food"},
-								"fail_when_blocked": false
-							},
-							{
-								"type": "move",
-								"speed": {"value": 7.0},
-								"target": {"key": "oldPos"},
-								"fail_when_blocked": false
-							}
-						]
+							]
+						}
 					}
 				}
 			}

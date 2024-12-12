@@ -210,6 +210,19 @@ public:
     static std::unique_ptr<MoveNode> fromDictionary(Dictionary& data);
 };
 
+class EnforceSwimmingNode : public BehaviorNode {
+    std::unique_ptr<BehaviorNode> child = nullptr;
+
+    BlackboardValue<double> gravity;
+
+    String toString() override { return String("EnforceSwimmingNode(%s)") % Array::make(gravity.toString());}
+    void printChildren(int indent) override { child->print(indent); }
+
+public:
+    Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override;
+    static std::unique_ptr<EnforceSwimmingNode> fromDictionary(Dictionary& data);
+};
+
 class SearchForTileNode : public BehaviorNode {
     BlackboardValue<StringName> target;
     BlackboardValue<int> radius;

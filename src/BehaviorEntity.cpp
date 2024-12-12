@@ -19,11 +19,11 @@ BehaviorEntity::BehaviorEntity(StringName type, Ref<EntityProperties> properties
 void BehaviorEntity::process(double delta, GameState& gameState) {
     auto* props = Object::cast_to<BehaviorProperties>(properties.ptr());
 
-    static bool done = false;
-    if (!done) {
-        props->tree->root->print();
-        done = true;
-    }
+    // static bool done = false;
+    // if (!done) {
+    //     props->tree->root->print();
+    //     done = true;
+    // }
 
     BehaviorNode::Outcome outcome = props->tree->root->process(*this, delta, gameState);
     if (outcome != BehaviorNode::RUNNING) {
@@ -67,6 +67,8 @@ std::unique_ptr<BehaviorNode> BehaviorNode::fromDictionary(Dictionary& data) {
         return InvertNode::fromDictionary(data);
     } else if (type == "move") {
         return MoveNode::fromDictionary(data);
+    } else if (type == "enforce_swimming") {
+        return EnforceSwimmingNode::fromDictionary(data);
     } else if (type == "search_for_tile") {
         return SearchForTileNode::fromDictionary(data);
     } else if (type == "search_for_entity") {
@@ -200,6 +202,31 @@ std::unique_ptr<MoveNode> MoveNode::fromDictionary(Dictionary& data) {
 
     node->isRelative = data.get_or_add("relative", false);
     node->failWhenBlocked = data.get_or_add("fail_when_blocked", true);
+    return node;
+}
+
+BehaviorNode::Outcome EnforceSwimmingNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
+    Ref<MaterialProperties> mat = gameState.getMaterialProperties(entity.getCurrentTile(gameState));
+    if (mat->isSolid()) {
+        entity.die();
+        return FAILURE;
+    } else if (mat->isFluid()) {
+        return child->process(entity, delta, gameState);
+    } else {
+        entity.move(Vector2(0, -1) * (real_t) gravity.get(entity.blackboard) * delta, gameState, true);
+        return RUNNING;
+    }
+}
+
+std::unique_ptr<EnforceSwimmingNode> EnforceSwimmingNode::fromDictionary(Dictionary& data) {
+    std::unique_ptr<EnforceSwimmingNode> node = std::make_unique<EnforceSwimmingNode>();
+
+    Dictionary gravity = data.get_or_add("gravity", Dictionary());
+    node->gravity = BlackboardValue<double>::fromDictionary(gravity);
+
+    Dictionary childData = data.get_or_add("child", Dictionary());
+    node->child = BehaviorNode::fromDictionary(childData);
+
     return node;
 }
 
