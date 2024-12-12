@@ -76,12 +76,12 @@ public:
         return v;
     }
 
-    T& get(Dictionary& blackboard) {
+    T get(Dictionary& blackboard) {
         if (isBlackboard) {
             if (!blackboard.has(key)) {
                 blackboard[key] = T();
             }
-            return (T&) blackboard[key];
+            return blackboard[key];
         } else {
             return value.value();
         }
@@ -91,14 +91,15 @@ public:
         return isBlackboard ? "<blackboard: '" + key + "'>" : String("%s") % Array::make(value.value());
     }
 
-    static BlackboardValue fromDictionary(Dictionary& data) {
+    static BlackboardValue fromDictionary(Dictionary& data, bool isStr = false) {
         if (data.has("key")) {
             return fromKey(data["key"]);
-        } else  if (!data.has("value")) {
+        } else if (data.has("value")) {
+            Variant v = data["value"];
+            return fromValue(isStr ? v : UtilityFunctions::str_to_var(v));
+        } else {
             UtilityFunctions::printerr("BlackboardValue missing data");
             return fromValue(T());
-        } else {
-            return fromValue(UtilityFunctions::str_to_var(data["value"]));
         }
     }
 };
@@ -175,17 +176,80 @@ public:
     static std::unique_ptr<ConstantNode> fromDictionary(Dictionary& data);
 };
 
+class InvertNode : public BehaviorNode {
+    std::unique_ptr<BehaviorNode> child = nullptr;
+
+    String toString() override { return "InvertNode"; }
+    void printChildren(int indent) override { child->print(indent); }
+
+public:
+    Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override {
+        Outcome outcome = child->process(entity, delta, gameState);
+        return outcome == RUNNING ? RUNNING : outcome == SUCCESS ? FAILURE : SUCCESS;
+    }
+
+    static std::unique_ptr<InvertNode> fromDictionary(Dictionary& data);
+};
+
 class MoveNode : public BehaviorNode {
     BlackboardValue<Vector2> target;
     BlackboardValue<double> speed;
     bool isRelative;
+    bool failWhenBlocked;
 
-    String toString() override { return String("MoveNode(%s, %s)") % Array::make(target.toString(), speed.toString());}
+    String toString() override { return String("MoveNode(%s, %s, %s)") % Array::make(target.toString(), speed.toString(), isRelative ? "true" : "false");}
 
 public:
     Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override;
     static std::unique_ptr<MoveNode> fromDictionary(Dictionary& data);
 };
 
+class SearchForTileNode : public BehaviorNode {
+    BlackboardValue<StringName> target;
+    BlackboardValue<int> radius;
+    bool requireLineOfSight;
+    String resultKey;
+
+    String toString() override { return String("SearchForTileNode(%s, %s, %s)") % Array::make(target.toString(), radius.toString(), requireLineOfSight ? "true" : "false"); }
+
+public:
+    Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override;
+    static std::unique_ptr<SearchForTileNode> fromDictionary(Dictionary& data);
+};
+
+class SearchForEntityNode : public BehaviorNode {
+    BlackboardValue<StringName> target;
+    BlackboardValue<double> radius;
+    bool requireLineOfSight;
+    String resultKey;
+
+    String toString() override { return String("SearchForEntityNode(%s, %s, %s)") % Array::make(target.toString(), radius.toString(), requireLineOfSight ? "true" : "false"); }
+
+public:
+    Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override;
+    static std::unique_ptr<SearchForEntityNode> fromDictionary(Dictionary& data);
+};
+
+class GetPropertyNode : public BehaviorNode {
+    StringName property;
+    String resultKey;
+
+    String toString() override { return String("GetPropertyNode(%s)") % Array::make(property);}
+
+public:
+    Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override;
+    static std::unique_ptr<GetPropertyNode> fromDictionary(Dictionary& data);
+};
+
+class SetBlackboardNode : public BehaviorNode {
+    BlackboardValue<StringName> key;
+    BlackboardValue<Variant> value;
+
+    String toString() override { return String("SetBlackboardNode(%s, %s)") % Array::make(key.toString(), value.toString());}
+
+public:
+    Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override;
+    static std::unique_ptr<SetBlackboardNode> fromDictionary(Dictionary& data);
+};
 
 #endif //BEHAVIORENTITY_H

@@ -47,8 +47,6 @@ public:
     void process(double delta, GameState& gameState) override;
 
     void render(Ref<Image> image) override;
-
-    bool hasLineOfSightTo(GameState& gameState, Vector2i pos);
 };
 
 

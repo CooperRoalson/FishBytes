@@ -94,7 +94,9 @@ public:
     StringName getCurrentTile(GameState& gameState);
     bool isDead() { return dead; }
     void die() { dead = true;}
+
     bool move(Vector2 vel, GameState& gameState, bool canGoInAir = false);
+    bool hasLineOfSightTo(GameState& gameState, Vector2 pos);
 };
 
 class GameState {

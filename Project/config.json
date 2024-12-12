@@ -91,14 +91,45 @@
 						"type": "sequence",
 						"children": [
 							{
-								"type": "constant",
-								"outcome": "SUCCESS"
+								"type": "repeat_while",
+								"child": {
+									"type": "sequence",
+									"children": [
+										{
+											"type": "invert",
+											"child": {
+												"type": "search_for_tile",
+												"radius": {"value": 10},
+												"target": {"value": "food"},
+												"result_key": "food"
+											}
+										},
+										{
+											"type": "move",
+											"speed": {"value": 3.0},
+											"target": {"value": "Vector2(1, 0)"},
+											"relative": true,
+											"fail_when_blocked": false
+										}
+									]
+								}
+							},
+							{
+								"type": "get_property",
+								"property": "position",
+								"result_key": "oldPos"
 							},
 							{
 								"type": "move",
 								"speed": {"value": 7.0},
-								"target": {"value": "Vector2(1, 0)"},
-								"relative": true
+								"target": {"key": "food"},
+								"fail_when_blocked": false
+							},
+							{
+								"type": "move",
+								"speed": {"value": 7.0},
+								"target": {"key": "oldPos"},
+								"fail_when_blocked": false
 							}
 						]
 					}

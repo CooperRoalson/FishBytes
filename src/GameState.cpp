@@ -49,6 +49,20 @@ bool Entity::move(Vector2 vel, GameState& gameState, bool canGoInAir) {
     return !collided;
 }
 
+bool Entity::hasLineOfSightTo(GameState& gameState, Vector2 pos) {
+    Vector2 diff = pos - position;
+    double dist = diff.length();
+    Vector2 dir = diff / dist;
+    for (int i = 0; i < dist; i++) {
+        Vector2i checkPos = (position + dir * i).round();
+        if (checkPos == pos) { break; }
+
+        if (!gameState.isInBounds(checkPos)) { return false; }
+        if (gameState.getMaterialProperties(gameState.getTile(checkPos))->isSolid()) { return false; }
+    }
+    return true;
+}
+
 GameState::GameState(GameManager* gameManager, Vector2i size, double tileSpeed, double entitySpeed)
         : gameManager(gameManager), grid(size), tileSpeed(tileSpeed), entitySpeed(entitySpeed) {}
 

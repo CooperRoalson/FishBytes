@@ -59,9 +59,20 @@ std::unique_ptr<BehaviorNode> BehaviorNode::fromDictionary(Dictionary& data) {
         return RepeatWhileNode::fromDictionary(data);
     } else if (type == "constant") {
         return ConstantNode::fromDictionary(data);
+    } else if (type == "invert") {
+        return InvertNode::fromDictionary(data);
     } else if (type == "move") {
         return MoveNode::fromDictionary(data);
-    }else {
+    } else if (type == "search_for_tile") {
+        return SearchForTileNode::fromDictionary(data);
+    } else if (type == "search_for_entity") {
+        return SearchForEntityNode::fromDictionary(data);
+    } else if (type == "get_property") {
+        return GetPropertyNode::fromDictionary(data);
+    } else if (type == "set_blackboard") {
+        return SetBlackboardNode::fromDictionary(data);
+    } else {
+        UtilityFunctions::printerr("Unknown node type: ", type);
         return std::make_unique<NullNode>();
     }
 }
@@ -119,8 +130,10 @@ std::unique_ptr<SelectorNode> SelectorNode::fromDictionary(Dictionary& data) {
 BehaviorNode::Outcome RepeatWhileNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
     for (int i = 0; i < MAX_LOOPS_PER_FRAME; i++) {
         Outcome outcome = child->process(entity, delta, gameState);
-        if (outcome == FAILURE || outcome == RUNNING) {
-            return outcome;
+        if (outcome == RUNNING) {
+            return RUNNING;
+        } else if (outcome == FAILURE) {
+            return SUCCESS;
         }
     }
     return RUNNING;
@@ -140,6 +153,13 @@ std::unique_ptr<ConstantNode> ConstantNode::fromDictionary(Dictionary& data) {
     return node;
 }
 
+std::unique_ptr<InvertNode> InvertNode::fromDictionary(Dictionary& data) {
+    std::unique_ptr<InvertNode> node = std::make_unique<InvertNode>();
+    Dictionary childData = data.get_or_add("child", Dictionary());
+    node->child = BehaviorNode::fromDictionary(childData);
+    return node;
+}
+
 BehaviorNode::Outcome MoveNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
     Vector2 dest = target.get(entity.blackboard);
     Vector2 dir = isRelative ? dest : dest - entity.getPosition();
@@ -148,7 +168,7 @@ BehaviorNode::Outcome MoveNode::process(BehaviorEntity& entity, double delta, Ga
     }
     dir.normalize();
     bool success = entity.move(dir * speed.get(entity.blackboard) * delta, gameState);
-    return success ? RUNNING : FAILURE;
+    return success ? (isRelative ? SUCCESS : RUNNING) : (failWhenBlocked ? FAILURE : SUCCESS);
 }
 
 std::unique_ptr<MoveNode> MoveNode::fromDictionary(Dictionary& data) {
@@ -161,5 +181,142 @@ std::unique_ptr<MoveNode> MoveNode::fromDictionary(Dictionary& data) {
     node->speed = BlackboardValue<double>::fromDictionary(speed);
 
     node->isRelative = data.get_or_add("relative", false);
+    node->failWhenBlocked = data.get_or_add("fail_when_blocked", false);
+    return node;
+}
+
+BehaviorNode::Outcome SearchForTileNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
+    const Vector2i posI = entity.getPosition().round();
+    double radius = this->radius.get(entity.blackboard);
+    StringName target = this->target.get(entity.blackboard);
+
+    Vector2i result;
+    double closestSq = -1;
+
+    for (int x = -radius; x <= radius; ++x) {
+        for (int y = -radius; y <= radius; ++y) {
+            Vector2i pos = posI + Vector2i(x, y);
+            StringName mat = gameState.getTile(pos);
+            if (mat != target) { continue;}
+
+            Vector2 diff = pos - entity.getPosition();
+            double distSquared = diff.length_squared();
+            if (distSquared > radius * radius || (closestSq != -1 && distSquared > closestSq)) { continue; }
+            if (Math::is_zero_approx(distSquared)) { continue; }
+
+            if (requireLineOfSight && !entity.hasLineOfSightTo(gameState, pos)) {
+                continue;
+            }
+
+            closestSq = distSquared;
+            result = pos;
+        }
+    }
+    if (closestSq == -1) {
+        return FAILURE;
+    } else {
+        if (!resultKey.is_empty()) {
+            entity.blackboard[resultKey] = result;
+        }
+        return SUCCESS;
+    }
+}
+
+std::unique_ptr<SearchForTileNode> SearchForTileNode::fromDictionary(Dictionary& data) {
+    std::unique_ptr<SearchForTileNode> node = std::make_unique<SearchForTileNode>();
+
+    Dictionary target = data.get_or_add("target", Dictionary());
+    node->target = BlackboardValue<StringName>::fromDictionary(target, true);
+
+    Dictionary radius = data.get_or_add("radius", 0);
+    node->radius = BlackboardValue<int>::fromDictionary(radius);
+
+    node->requireLineOfSight = data.get_or_add("require_line_of_sight", false);
+    node->resultKey = data.get_or_add("result_key", "");
+    return node;
+}
+
+BehaviorNode::Outcome SearchForEntityNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
+    double radius = this->radius.get(entity.blackboard);
+    StringName target = this->target.get(entity.blackboard);
+
+    Vector2 result;
+    double closestSq = -1;
+
+    gameState.processNearbyEntities(entity.getPosition(), radius, [&] (Entity& e) {
+        if (e.getType() != target) { return; }
+
+        Vector2 diff = e.getPosition() - entity.getPosition();
+        double distSquared = diff.length_squared();
+        if (distSquared > radius * radius || (closestSq != -1 && distSquared > closestSq)) { return; }
+        if (Math::is_zero_approx(distSquared)) { return; }
+
+        if (requireLineOfSight && !entity.hasLineOfSightTo(gameState, e.getPosition())) {
+            return;
+        }
+
+        closestSq = distSquared;
+        result = e.getPosition();
+    });
+
+    if (closestSq == -1) {
+        return FAILURE;
+    } else {
+        if (!resultKey.is_empty()) {
+            entity.blackboard[resultKey] = result;
+        }
+        return SUCCESS;
+    }
+}
+
+std::unique_ptr<SearchForEntityNode> SearchForEntityNode::fromDictionary(Dictionary& data) {
+    std::unique_ptr<SearchForEntityNode> node = std::make_unique<SearchForEntityNode>();
+
+    Dictionary target = data.get_or_add("target", Dictionary());
+    node->target = BlackboardValue<StringName>::fromDictionary(target, true);
+
+    Dictionary radius = data.get_or_add("radius", 0);
+    node->radius = BlackboardValue<double>::fromDictionary(radius);
+
+    node->requireLineOfSight = data.get_or_add("require_line_of_sight", false);
+    node->resultKey = data.get_or_add("result_key", "");
+    return node;
+}
+
+BehaviorNode::Outcome GetPropertyNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
+    if (property == StringName("position")) {
+        entity.blackboard[resultKey] = entity.getPosition();
+    } else if (property == StringName("tile")) {
+        entity.blackboard[resultKey] = entity.getCurrentTile(gameState);
+    } else if (property == StringName("type")) {
+        entity.blackboard[resultKey] = entity.getType();
+    } else {
+        UtilityFunctions::printerr("Unknown property: ", property);
+        return FAILURE;
+    }
+    return SUCCESS;
+}
+
+std::unique_ptr<GetPropertyNode> GetPropertyNode::fromDictionary(Dictionary& data) {
+    std::unique_ptr<GetPropertyNode> node = std::make_unique<GetPropertyNode>();
+
+    node->property = data.get_or_add("property", "");
+    node->resultKey = data.get_or_add("result_key", "");
+    return node;
+}
+
+BehaviorNode::Outcome SetBlackboardNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
+    entity.blackboard[key.get(entity.blackboard)] = value.get(entity.blackboard);
+    return SUCCESS;
+}
+
+std::unique_ptr<SetBlackboardNode> SetBlackboardNode::fromDictionary(Dictionary& data) {
+    std::unique_ptr<SetBlackboardNode> node = std::make_unique<SetBlackboardNode>();
+
+    Dictionary key = data.get_or_add("key", Dictionary());
+    node->key = BlackboardValue<StringName>::fromDictionary(key, true);
+
+    Dictionary value = data.get_or_add("value", Dictionary());
+    node->value = BlackboardValue<Variant>::fromDictionary(value);
     return node;
 }
