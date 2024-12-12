@@ -116,6 +116,7 @@ void BoidEntity::process(double delta, GameState& gameState) {
     for (int x = -config->visionRadius; x <= config->visionRadius; ++x) {
         for (int y = -config->visionRadius; y <= config->visionRadius; ++y) {
             Vector2i pos = posI + Vector2i(x, y);
+            if (!gameState.isInBounds(pos)) { continue; }
             StringName mat = gameState.getTile(pos).material;
             Ref<MaterialProperties> properties = gameState.getMaterialProperties(mat);
 

@@ -196,6 +196,7 @@ BehaviorNode::Outcome SearchForTileNode::process(BehaviorEntity& entity, double 
     for (int x = -radius; x <= radius; ++x) {
         for (int y = -radius; y <= radius; ++y) {
             Vector2i pos = posI + Vector2i(x, y);
+            if (!gameState.isInBounds(pos)) { continue; }
             StringName mat = gameState.getTile(pos).material;
             if (mat != target) { continue;}
 
