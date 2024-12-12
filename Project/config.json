@@ -34,6 +34,12 @@
 			"color": "#1937e3",
 			"type": "BOID",
 			"config": "sharkBoid"
+		},
+		"salmon": {
+			"name": "Salmon",
+			"color": "#c7470c",
+			"type": "BEHAVIOR",
+			"config": "salmonBehavior"
 		}
 	},
 	"entityConfig": {
@@ -75,6 +81,28 @@
 					"goldfish": 7.0
 				},
 				"prey": ["goldfish"]
+			}
+		},
+		"behaviorTrees": {
+			"salmonBehavior": {
+				"root": {
+					"type": "repeat_while",
+					"child": {
+						"type": "sequence",
+						"children": [
+							{
+								"type": "constant",
+								"outcome": "SUCCESS"
+							},
+							{
+								"type": "move",
+								"speed": {"value": 7.0},
+								"target": {"value": "Vector2(1, 0)"},
+								"relative": true
+							}
+						]
+					}
+				}
 			}
 		}
 	}

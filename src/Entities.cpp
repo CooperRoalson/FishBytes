@@ -1,44 +1,46 @@
 #include "Entities.h"
+
+#include "BehaviorEntity.h"
 #include "BoidEntity.h"
 
 Dictionary Entities::parseBoidConfigs(Dictionary boidData) {
-    Dictionary boidConfig;
+    Dictionary boidConfigs;
     Array ids = boidData.keys();
     for (int i = 0; i < ids.size(); ++i) {
         String id = ids[i];
         Dictionary config = boidData[id];
-
-        Ref<BoidProperties::BoidConfig> props = memnew(BoidProperties::BoidConfig);
-        boidConfig[id] = props;
-
-        props->trailLen = config.get_or_add("trailLen", 0);
-        props->groupRadius = config.get_or_add("groupRadius", 10);
-        props->visionRadius = config.get_or_add("visionRadius", 10);
-        props->maxSpeed = config.get_or_add("maxSpeed", 100);
-        props->maxAccel = config.get_or_add("maxAccel", 100);
-        props->dragPercent = config.get_or_add("dragPercent", 0);
-        props->bouncePercent = config.get_or_add("bouncePercent", 0);
-        props->separationWeight = config.get_or_add("separationWeight", 1);
-        props->alignmentPercent = config.get_or_add("alignmentPercent", 0.2);
-        props->cohesionWeight = config.get_or_add("cohesionWeight", 1);
-        props->obstacleWeight = config.get_or_add("obstacleWeight", 1);
-        props->tileWeights = config.get_or_add("materialWeights", Dictionary());
-        props->entityWeights = config.get_or_add("entityWeights", Dictionary());
-        props->food = config.get_or_add("food", Array());
-        props->prey = config.get_or_add("prey", Array());
+        boidConfigs[id] = BoidProperties::BoidConfig::parseBoidConfig(config);
     }
-    return boidConfig;
+    return boidConfigs;
 }
+
+Dictionary Entities::parseBehaviorTrees(Dictionary behaviorData) {
+    Dictionary behaviorTrees;
+    Array ids = behaviorData.keys();
+    for (int i = 0; i < ids.size(); ++i) {
+        String id = ids[i];
+        Dictionary config = behaviorData[id];
+        behaviorTrees[id] = BehaviorTree::parseBehaviorTree(config);
+    }
+    return behaviorTrees;
+}
+
 
 Entities::Entities(Dictionary entities, Dictionary entityConfig) {
     Dictionary boidConfigs = parseBoidConfigs(entityConfig.get_or_add("boids", Dictionary()));
+    Dictionary behaviorTrees = parseBehaviorTrees(entityConfig.get_or_add("behaviorTrees", Dictionary()));
 
     Array ids = entities.keys();
     for (int i = 0; i < ids.size(); ++i) {
         String id = ids[i];
         Dictionary entity = entities[id];
 
-        EntityProperties::EntityType type = EntityProperties::typeFromString(entity.get_or_add("type", "STATIC"));
+        if (!entity.has("type")) {
+            UtilityFunctions::printerr("Entity missing type: ", id);
+            continue;
+        }
+        EntityProperties::EntityType type = EntityProperties::typeFromString(entity["type"]);
+
 
         Ref<EntityProperties> props;
         switch (type) {
@@ -51,7 +53,24 @@ Entities::Entities(Dictionary entities, Dictionary entityConfig) {
                 props = boid;
 
                 String config = entity.get_or_add("config", "");
-                boid->boidConfig = Ref<BoidProperties::BoidConfig>(boidConfigs.get_or_add(config, Ref<BoidProperties::BoidConfig>()));
+                if (!boidConfigs.has(config)) {
+                    UtilityFunctions::printerr("Boid config not found: ", config);
+                    continue;
+                }
+                boid->boidConfig = boidConfigs[config];
+                break;
+            }
+            case EntityProperties::BEHAVIOR: {
+                Ref<BehaviorProperties> behavior = memnew(BehaviorProperties);
+                props = behavior;
+
+                String config = entity.get_or_add("config", "");
+                if (!behaviorTrees.has(config)) {
+                    UtilityFunctions::printerr("Behavior tree not found: ", config);
+                    continue;
+                }
+                behavior->tree = behaviorTrees[config];
+                behavior->defaultBlackboardOverrides = entity.get_or_add("blackboard", Dictionary());
                 break;
             }
         }

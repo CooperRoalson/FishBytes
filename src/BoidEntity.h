@@ -27,6 +27,8 @@ struct BoidProperties : EntityProperties {
         Dictionary entityWeights;
         Array food;
         Array prey;
+
+        static Ref<BoidConfig> parseBoidConfig(Dictionary& data);
     };
 
     Ref<BoidConfig> boidConfig;

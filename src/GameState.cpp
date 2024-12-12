@@ -1,5 +1,6 @@
 #include "GameState.h"
 
+#include "BehaviorEntity.h"
 #include "MaterialSimulator.h"
 #include "BoidEntity.h"
 #include "GameManager.h"
@@ -10,8 +11,8 @@ Entity* Entity::instantiateEntity(StringName type, Ref<EntityProperties> propert
             return new Entity(type, properties, position);
         case EntityProperties::BOID:
             return new BoidEntity(type, properties, position);
-        default:
-            DEV_ASSERT(false);
+        case EntityProperties::BEHAVIOR:
+            return new BehaviorEntity(type, properties, position);
     }
 }
 
@@ -22,6 +23,30 @@ void Entity::render(Ref<Image> image) {
 
 StringName Entity::getCurrentTile(GameState& gameState) {
     return gameState.getTile(position.round());
+}
+
+bool Entity::move(Vector2 vel, GameState& gameState, bool canGoInAir) {
+    bool collided = false;
+    position += vel;
+
+    Vector2 bounded = position.clamp({0,0}, gameState.getDimensions() - Vector2i(1,1));
+    if (bounded != position) {
+        collided = true;
+        position = bounded;
+    }
+
+    double amount = vel.length();
+    Vector2 dir = vel / amount;
+    while (!Math::is_zero_approx(amount)
+            && canGoInAir ? gameState.getMaterialProperties(getCurrentTile(gameState))->isSolid()
+                          : !gameState.getMaterialProperties(getCurrentTile(gameState))->isFluid()) {
+
+        double sub = Math::min(amount, 1.0);
+        position -= dir * sub;
+        amount -= sub;
+        collided = true;
+    }
+    return !collided;
 }
 
 GameState::GameState(GameManager* gameManager, Vector2i size, double tileSpeed, double entitySpeed)
@@ -77,11 +102,7 @@ Ref<JSON> GameState::exportData() {
     Dictionary data;
 
     data["config"] = configFile;
-
-    Array size;
-    size.append(grid.size.x);
-    size.append(grid.size.y);
-    data["size"] = size;
+    data["size"] = UtilityFunctions::var_to_str(grid.size);
 
     Array gridData;
     gridData.resize(grid.size.x * grid.size.y);
@@ -95,14 +116,8 @@ Ref<JSON> GameState::exportData() {
     Array entityInstanceData;
     for (Entity* e : entityInstances) {
         Dictionary entityData;
-
         entityData["type"] = e->getType();
-
-        Array position;
-        position.append(e->getPosition().round().x);
-        position.append(e->getPosition().round().y);
-        entityData["position"] = position;
-
+        entityData["position"] = UtilityFunctions::var_to_str(Vector2i(e->getPosition().round()));
         entityInstanceData.append(entityData);
     }
     data["entityInstances"] = entityInstanceData;
@@ -115,9 +130,8 @@ Ref<JSON> GameState::exportData() {
 void GameState::importData(Ref<JSON> json) {
     Dictionary data = json->get_data();
 
-    Array size = data.get_or_add("size", Array());
-    if (size.size() != 2) { return; }
-    clearGrid({size[0], size[1]});
+    Vector2i size = UtilityFunctions::str_to_var(data.get_or_add("size", "Vector2i(50, 50)"));
+    clearGrid({size.x, size.y});
 
     if (data.has("config")) {
         gameManager->importConfig(data["config"], false);
@@ -140,9 +154,8 @@ void GameState::importData(Ref<JSON> json) {
 
         StringName type = entityData.get_or_add("type", "");
 
-        Array position = entityData.get_or_add("position", Array());
-        if (position.size() != 2) { continue; }
-        spawnEntity({position[0], position[1]}, type);
+        Vector2i position = UtilityFunctions::str_to_var(entityData.get_or_add("position", "Vector2i(0, 0)"));
+        spawnEntity({position.x, position.y}, type);
     }
 }
 

@@ -1,5 +1,27 @@
 #include "BoidEntity.h"
 
+Ref<BoidProperties::BoidConfig> BoidProperties::BoidConfig::parseBoidConfig(Dictionary& config) {
+    Ref<BoidConfig> props = memnew(BoidConfig);
+
+    props->trailLen = config.get_or_add("trailLen", 0);
+    props->groupRadius = config.get_or_add("groupRadius", 10);
+    props->visionRadius = config.get_or_add("visionRadius", 10);
+    props->maxSpeed = config.get_or_add("maxSpeed", 100);
+    props->maxAccel = config.get_or_add("maxAccel", 100);
+    props->dragPercent = config.get_or_add("dragPercent", 0);
+    props->bouncePercent = config.get_or_add("bouncePercent", 0);
+    props->separationWeight = config.get_or_add("separationWeight", 1);
+    props->alignmentPercent = config.get_or_add("alignmentPercent", 0.2);
+    props->cohesionWeight = config.get_or_add("cohesionWeight", 1);
+    props->obstacleWeight = config.get_or_add("obstacleWeight", 1);
+    props->tileWeights = config.get_or_add("materialWeights", Dictionary());
+    props->entityWeights = config.get_or_add("entityWeights", Dictionary());
+    props->food = config.get_or_add("food", Array());
+    props->prey = config.get_or_add("prey", Array());
+
+    return props;
+}
+
 BoidEntity::BoidEntity(StringName type, Ref<EntityProperties> properties, Vector2 position) : Entity(type, properties, position) {
     // TODO: make this more configurable
     velocity = Vector2::from_angle(UtilityFunctions::randf_range(0, Math_TAU)) * 10;
@@ -115,27 +137,24 @@ void BoidEntity::process(double delta, GameState& gameState) {
         }
     }
 
+    // Update velocity
     acceleration = acceleration.limit_length(config->maxAccel);
-
     velocity += acceleration * delta;
     velocity = velocity.limit_length(config->maxSpeed);
 
-    position += velocity * delta;
-    position = position.clamp({0,0}, gameState.getDimensions() - Vector2i(1,1));
-
-    if (config->food.has(getCurrentTile(gameState))) {
-        gameState.setTile(position.round(), "");
+    // Eat food
+    Vector2 newPos = position + velocity * delta;
+    if (config->food.has(gameState.getTile(newPos.round()))) {
+        gameState.setTile(newPos.round(), "");
     }
 
-    double amount = velocity.length() * delta;
-    Vector2 dir = velocity.normalized();
-    while (!Math::is_zero_approx(amount) && !gameState.getMaterialProperties(getCurrentTile(gameState))->isFluid()) {
-        double sub = Math::min(amount, 1.0);
-        position -= dir * sub;
+    // Move and rebound
+    bool collision = !move(velocity * delta, gameState);
+    if (collision) {
         velocity *= -config->bouncePercent;
-        amount -= sub;
     }
 
+    // Update trail
     Vector2 posi = position.round();
     if (posi != oldPos) {
         if (trail.size() >= config->trailLen) {
