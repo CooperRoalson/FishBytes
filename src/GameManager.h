@@ -1,6 +1,8 @@
 #ifndef GAMEMANAGER_H
 #define GAMEMANAGER_H
 
+#include <deque>
+
 #include "GameState.h"
 #include "godot_includes.h"
 #include "SelectionMenu.h"
@@ -12,8 +14,8 @@ class GameManager : public Node2D {
     SelectionMenu* selectionMenu = nullptr;
     FileMenu* fileMenu = nullptr;
 
-    std::unique_ptr<GameState> gameState;
-    std::deque<std::unique_ptr<GameState>> previousStates;
+    std::unique_ptr<GameState> gameState{};
+    std::deque<std::unique_ptr<GameState>> previousStates{};
 
     Vector2i gridSize = {50, 50};
     double baseSimSpeed = 15.0;

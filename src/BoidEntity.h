@@ -1,6 +1,8 @@
 #ifndef BOIDENTITY_H
 #define BOIDENTITY_H
 
+#include <deque>
+
 #include "godot_includes.h"
 #include "GameState.h"
 #include "Entities.h"
