@@ -25,6 +25,7 @@ void BoidEntity::process(double delta, GameState& gameState) {
         }
     }
 
+    Vector2i oldPos = position.round();
     Vector2 acceleration = Vector2();
 
     // Boid-related forces
@@ -133,6 +134,27 @@ void BoidEntity::process(double delta, GameState& gameState) {
         position -= dir * sub;
         velocity *= -config->bouncePercent;
         amount -= sub;
+    }
+
+    Vector2 posi = position.round();
+    if (posi != oldPos) {
+        if (trail.size() >= config->trailLen) {
+            trail.pop_front();
+        }
+        trail.push_back(oldPos);
+    }
+}
+
+void BoidEntity::render(Ref<Image> image) {
+    Vector2i pos = position.round();
+    image->set_pixel(pos.x, pos.y, properties->color);
+
+    Color trailColor = properties->color;
+    trailColor.a *= 0.5;
+    for (Vector2i trailPos : trail) {
+        if (trailPos != pos) {
+            image->set_pixel(trailPos.x, trailPos.y, trailColor);
+        }
     }
 }
 

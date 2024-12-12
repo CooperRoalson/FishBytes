@@ -7,6 +7,8 @@
 
 struct BoidProperties : EntityProperties {
     struct BoidConfig : Resource {
+        int trailLen;
+
         int visionRadius;
         double groupRadius;
 
@@ -33,10 +35,14 @@ struct BoidProperties : EntityProperties {
 class BoidEntity : public Entity {
     Vector2 velocity;
 
+    std::deque<Vector2i> trail{};
+
 public:
     BoidEntity(StringName type, Ref<EntityProperties> properties, Vector2 position);
 
     void process(double delta, GameState& gameState) override;
+
+    void render(Ref<Image> image) override;
 
     bool hasLineOfSightTo(GameState& gameState, Vector2i pos);
 };

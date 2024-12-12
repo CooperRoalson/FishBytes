@@ -31,7 +31,7 @@
 		},
 		"shark": {
 			"name": "Shark",
-			"color": "#4287f5",
+			"color": "#1937e3",
 			"type": "BOID",
 			"config": "sharkBoid"
 		}
@@ -39,6 +39,7 @@
 	"entityConfig": {
 		"boids": {
 			"goldfishBoid": {
+				"trailLen": 1,
 				"visionRadius": 10,
 				"groupRadius": 10.0,
 				"maxSpeed": 50,
@@ -58,6 +59,7 @@
 				"food": ["food"]
 			},
 			"sharkBoid": {
+				"trailLen": 2,
 				"visionRadius": 10,
 				"groupRadius": 10.0,
 				"maxSpeed": 50,

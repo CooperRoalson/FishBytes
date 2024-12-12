@@ -11,6 +11,7 @@ Dictionary Entities::parseBoidConfigs(Dictionary boidData) {
         Ref<BoidProperties::BoidConfig> props = memnew(BoidProperties::BoidConfig);
         boidConfig[id] = props;
 
+        props->trailLen = config.get_or_add("trailLen", 0);
         props->groupRadius = config.get_or_add("groupRadius", 10);
         props->visionRadius = config.get_or_add("visionRadius", 10);
         props->maxSpeed = config.get_or_add("maxSpeed", 100);
