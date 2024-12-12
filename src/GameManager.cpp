@@ -96,7 +96,8 @@ void GameManager::importData(String p_file) {
         return;
     }
     saveState();
-    gameState->importData(json);
+    Vector2i newSize = gameState->importData(json);
+    image->resize(newSize.x, newSize.y);
 }
 
 void GameManager::_ready() {
@@ -161,6 +162,8 @@ void GameManager::handleMouseInput(double delta) {
     isMouseDown = Input::get_singleton()->is_mouse_button_pressed(MOUSE_BUTTON_LEFT);
 
     if (isMouseDown) {
+        Vector2i size = gameState->getDimensions();
+
         double brushRadius = selectionMenu->getBrushRadius() - 1;
         double brushDensity = selectionMenu->getBrushDensity();
         bool autoFill = brushDensity >= brushRadius || brushDensity > 3.5;
@@ -168,9 +171,9 @@ void GameManager::handleMouseInput(double delta) {
 
         Vector2 localMousePos = canvas->get_local_mouse_position();
         localMousePos = Vector2(localMousePos.x + 0.5, 1 - (localMousePos.y + 0.5));
-        Vector2i mousePos = (localMousePos * Vector2(gridSize.x, gridSize.y)).round();
+        Vector2i mousePos = (localMousePos * Vector2(size.x, size.y)).round();
 
-        if (mousePos.x < 0 || mousePos.y < 0 || mousePos.x >= gridSize.x || mousePos.y >= gridSize.y) {
+        if (mousePos.x < 0 || mousePos.y < 0 || mousePos.x >= size.x || mousePos.y >= size.y) {
             return;
         }
 

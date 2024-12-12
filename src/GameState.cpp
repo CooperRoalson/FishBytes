@@ -151,7 +151,7 @@ Ref<JSON> GameState::exportData() {
     return json;
 }
 
-void GameState::importData(Ref<JSON> json) {
+Vector2i GameState::importData(Ref<JSON> json) {
     Dictionary data = json->get_data();
 
     Vector2i size = UtilityFunctions::str_to_var(data.get_or_add("size", "Vector2i(50, 50)"));
@@ -181,6 +181,7 @@ void GameState::importData(Ref<JSON> json) {
         Vector2i position = UtilityFunctions::str_to_var(entityData.get_or_add("position", "Vector2i(0, 0)"));
         spawnEntity({position.x, position.y}, type);
     }
+    return size;
 }
 
 std::unique_ptr<GameState> GameState::clone() {

@@ -212,7 +212,7 @@ public:
     Entities& getEntities() { return entities; }
 
     Ref<JSON> exportData();
-    void importData(Ref<JSON> data);
+    Vector2i importData(Ref<JSON> data);
 
     std::unique_ptr<GameState> clone();
 };
