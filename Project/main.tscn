@@ -29,7 +29,7 @@ color = Color(0.721368, 0.677273, 0.985331, 1)
 [node name="Canvas" type="MeshInstance2D" parent="Border/Background"]
 unique_name_in_owner = true
 texture_filter = 1
-position = Vector2(249, 249.25)
+position = Vector2(250, 250)
 scale = Vector2(500, 500)
 mesh = SubResource("QuadMesh_7o4oo")
 texture = SubResource("ImageTexture_ldwnh")

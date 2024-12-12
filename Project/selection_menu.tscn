@@ -1,4 +1,6 @@
-[gd_scene load_steps=8 format=3 uid="uid://cyw6fjwn2j08q"]
+[gd_scene load_steps=7 format=3 uid="uid://cyw6fjwn2j08q"]
+
+[ext_resource type="Theme" uid="uid://c6owr2f8ul4il" path="res://theme.tres" id="1_bw46u"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r0sv3"]
 bg_color = Color(0.442836, 0.598377, 0.88283, 1)
@@ -16,11 +18,7 @@ expand_margin_top = 4.0
 expand_margin_right = 6.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="SystemFont" id="SystemFont_qffd0"]
-subpixel_positioning = 0
-
 [sub_resource type="LabelSettings" id="LabelSettings_77542"]
-font = SubResource("SystemFont_qffd0")
 font_size = 26
 font_color = Color(0, 0, 0, 1)
 
@@ -48,16 +46,13 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="SystemFont" id="SystemFont_fpdin"]
-subpixel_positioning = 0
-
 [sub_resource type="LabelSettings" id="LabelSettings_4bks4"]
-font = SubResource("SystemFont_fpdin")
 font_color = Color(0, 0, 0, 1)
 
 [node name="SelectionMenu" type="SelectionMenu"]
 offset_right = 40.0
 offset_bottom = 40.0
+theme = ExtResource("1_bw46u")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0

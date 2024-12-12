@@ -1,0 +1,6 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://c6owr2f8ul4il"]
+
+[ext_resource type="FontFile" uid="uid://uw4t8y7xmf6h" path="res://assets/DepartureMono-Regular.otf" id="1_vrkc4"]
+
+[resource]
+default_font = ExtResource("1_vrkc4")

@@ -7,6 +7,7 @@
 #include "GameManager.h"
 #include "SelectionMenu.h"
 #include "FileMenu.h"
+#include "MainMenu.h"
 
 using namespace godot;
 
@@ -18,6 +19,7 @@ void initialize_fishbytes_module(ModuleInitializationLevel p_level) {
     GDREGISTER_CLASS(FileMenu);
     GDREGISTER_CLASS(GameManager);
     GDREGISTER_CLASS(SelectionMenu);
+    GDREGISTER_CLASS(MainMenu);
 }
 
 void uninitialize_fishbytes_module(ModuleInitializationLevel p_level) {
