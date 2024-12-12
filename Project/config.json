@@ -78,9 +78,10 @@
 				"obstacleWeight": 1.8,
 				"materialWeights": {},
 				"entityWeights": {
-					"goldfish": 7.0
+					"goldfish": 7.0,
+					"salmon": 7.0
 				},
-				"prey": ["goldfish"]
+				"prey": ["goldfish", "salmon"]
 			}
 		},
 		"behaviorTrees": {
