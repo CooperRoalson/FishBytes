@@ -22,6 +22,8 @@ env.CompilationDatabase("compile_commands.json")
 # - LINKFLAGS are for linking flags
 
 sources = SConscript("src/SConstruct", variant_dir="build", exports="env", duplicate=0)
+# env.Append(CPPPATH=["src/"])
+# sources = Glob("src/*.cpp")
 
 if env["platform"] == "macos":
     library = env.SharedLibrary(

@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://d3nc8hiwactch"]
 
-[ext_resource type="PackedScene" uid="uid://t40j5uqimdss" path="res://main.tscn" id="1_b47h8"]
+[ext_resource type="PackedScene" uid="uid://t40j5uqimdss" path="res://main.tscn" id="1_w64rq"]
 [ext_resource type="Theme" uid="uid://c6owr2f8ul4il" path="res://theme.tres" id="2_pe3vr"]
 
 [sub_resource type="Gradient" id="Gradient_ej3as"]
@@ -33,7 +33,7 @@ turbulence_influence_min = 0.01
 turbulence_influence_max = 0.05
 
 [node name="MainMenu" type="MainMenu"]
-game_scene = ExtResource("1_b47h8")
+game_scene = ExtResource("1_w64rq")
 start_game_button = NodePath("Panel/VBoxContainer/StartButton")
 quit_game_button = NodePath("Panel/VBoxContainer/QuitButton")
 anchors_preset = 15

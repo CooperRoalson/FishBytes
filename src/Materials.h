@@ -31,11 +31,11 @@ struct MaterialProperties : public Resource {
     MaterialProperties() = default;
     MaterialProperties(Color color, MaterialType type) : color(color), type(type) {}
 
-    bool isFluid() const {
+    [[nodiscard]] bool isFluid() const {
         return type == FLUID;
     }
 
-    bool isSolid() const {
+    [[nodiscard]] bool isSolid() const {
         return type == STATIC || type == GRAVITY;
     }
 };
@@ -47,9 +47,9 @@ class Materials {
 
 public:
     Materials() : Materials(Dictionary()) {}
-    Materials(Dictionary materials);
+    explicit Materials(Dictionary materials);
 
-    Array getAllMaterials() {
+    [[nodiscard]] Array getAllMaterials() const {
         return properties.keys();
     }
 

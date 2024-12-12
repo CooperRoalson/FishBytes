@@ -193,7 +193,7 @@ void GameManager::handleMouseInput(double delta) {
 
                 if (autoFill || UtilityFunctions::randf() < brushDensity * delta) {
                     Vector2i pos = mousePos + Vector2i(x, y);
-                    gameState->setTile(pos, type);
+                    gameState->setTile(pos, Pixel{type});
                 }
             }
         }
