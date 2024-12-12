@@ -8,6 +8,7 @@
 [sub_resource type="ImageTexture" id="ImageTexture_ldwnh"]
 
 [node name="Main" type="GameManager"]
+width = Vector2i(60, 60)
 metadata/_edit_horizontal_guides_ = [55.0]
 
 [node name="Border" type="ColorRect" parent="."]
