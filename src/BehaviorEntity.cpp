@@ -77,18 +77,25 @@ std::unique_ptr<BehaviorNode> BehaviorNode::fromDictionary(Dictionary& data) {
     }
 }
 
+int SequenceNode::sequenceCounter = 0;
+
 BehaviorNode::Outcome SequenceNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
+    String currentChildKey = String("_SequenceNode_") + id + String("_currentChild");
+
+    int currentChild = entity.blackboard.get_or_add(currentChildKey, 0);
+    Variant& currentChildVar = entity.blackboard[currentChildKey];
     while (currentChild < children.size()) {
         Outcome outcome = children[currentChild]->process(entity, delta, gameState);
         if (outcome == RUNNING) {
+            currentChildVar = currentChild;
             return RUNNING;
         } else if (outcome == FAILURE) {
-            currentChild = 0;
+            currentChildVar = 0;
             return FAILURE;
         }
         currentChild++;
     }
-    currentChild = 0;
+    currentChildVar = 0;
     return SUCCESS;
 }
 
@@ -102,18 +109,25 @@ std::unique_ptr<SequenceNode> SequenceNode::fromDictionary(Dictionary& data) {
     return node;
 }
 
+int SelectorNode::selectorCounter = 0;
+
 BehaviorNode::Outcome SelectorNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
+    String currentChildKey = String("_SelectorNode_") + id + String("_currentChild");
+
+    int currentChild = entity.blackboard.get_or_add(currentChildKey, 0);
+    Variant& currentChildVar = entity.blackboard[currentChildKey];
     while (currentChild < children.size()) {
         Outcome outcome = children[currentChild]->process(entity, delta, gameState);
         if (outcome == RUNNING) {
+            currentChildVar = currentChild;
             return RUNNING;
         } else if (outcome == SUCCESS) {
-            currentChild = 0;
+            currentChildVar = 0;
             return SUCCESS;
         }
         currentChild++;
     }
-    currentChild = 0;
+    currentChildVar = 0;
     return FAILURE;
 }
 
@@ -162,12 +176,12 @@ std::unique_ptr<InvertNode> InvertNode::fromDictionary(Dictionary& data) {
 
 BehaviorNode::Outcome MoveNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
     Vector2 dest = target.get(entity.blackboard);
-    Vector2 dir = isRelative ? dest : dest - entity.getPosition();
+    Vector2 diff = dest - entity.getPosition();
+    Vector2 dir = (isRelative ? dest : diff).normalized();
     if (dir.is_zero_approx()) {
         return SUCCESS;
     }
-    dir.normalize();
-    bool success = entity.move(dir * speed.get(entity.blackboard) * delta, gameState);
+    bool success = entity.move(dir * Math::min((real_t) (speed.get(entity.blackboard) * delta), isRelative ? 50 : diff.length()), gameState);
     return success ? (isRelative ? SUCCESS : RUNNING) : (failWhenBlocked ? FAILURE : SUCCESS);
 }
 

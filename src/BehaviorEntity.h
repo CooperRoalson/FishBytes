@@ -117,8 +117,9 @@ public:
 };
 
 class SequenceNode : public BehaviorNode {
+    static int sequenceCounter;
     std::vector<std::unique_ptr<BehaviorNode>> children{};
-    int currentChild = 0;
+    const int id = 0;
 
     String toString() override { return "SequenceNode"; }
 
@@ -129,13 +130,16 @@ class SequenceNode : public BehaviorNode {
     }
 
 public:
+    SequenceNode() : id(sequenceCounter++) {}
+
     Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override;
     static std::unique_ptr<SequenceNode> fromDictionary(Dictionary& data);
 };
 
 class SelectorNode : public BehaviorNode {
+    static int selectorCounter;
     std::vector<std::unique_ptr<BehaviorNode>> children{};
-    int currentChild = 0;
+    const int id;
 
     String toString() override { return "SelectorNode"; }
 
@@ -146,6 +150,8 @@ class SelectorNode : public BehaviorNode {
     }
 
 public:
+    SelectorNode() : id(selectorCounter++) {}
+
     Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override;
     static std::unique_ptr<SelectorNode> fromDictionary(Dictionary& data);
 };
