@@ -37,7 +37,7 @@ bool Entity::move(Vector2 vel, GameState& gameState, bool canGoInAir) {
 
     double amount = vel.length();
     Vector2 dir = vel.normalized();
-    while (amount > 0.1
+    while (!Math::is_zero_approx(amount)
             && (canGoInAir ? gameState.getMaterialProperties(getCurrentTile(gameState))->isSolid()
                           : !gameState.getMaterialProperties(getCurrentTile(gameState))->isFluid())) {
         double sub = Math::min(amount, 1.0);

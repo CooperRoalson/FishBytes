@@ -171,7 +171,7 @@ public:
         if (isInBounds(pos)) {
             return grid[pos.x, pos.y];
         }
-        UtilityFunctions::printerr("Accessing invalid tile ", pos.x, ", ", pos.y);
+        // UtilityFunctions::printerr("Accessing invalid tile ", pos.x, ", ", pos.y);
         return Pixel{""};
     }
 
