@@ -196,7 +196,7 @@ BehaviorNode::Outcome SearchForTileNode::process(BehaviorEntity& entity, double 
     for (int x = -radius; x <= radius; ++x) {
         for (int y = -radius; y <= radius; ++y) {
             Vector2i pos = posI + Vector2i(x, y);
-            StringName mat = gameState.getTile(pos);
+            StringName mat = gameState.getTile(pos).material;
             if (mat != target) { continue;}
 
             Vector2 diff = pos - entity.getPosition();
@@ -287,7 +287,7 @@ BehaviorNode::Outcome GetPropertyNode::process(BehaviorEntity& entity, double de
     if (property == StringName("position")) {
         entity.blackboard[resultKey] = entity.getPosition();
     } else if (property == StringName("tile")) {
-        entity.blackboard[resultKey] = entity.getCurrentTile(gameState);
+        entity.blackboard[resultKey] = entity.getCurrentTile(gameState).material;
     } else if (property == StringName("type")) {
         entity.blackboard[resultKey] = entity.getType();
     } else {

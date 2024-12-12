@@ -146,7 +146,7 @@ void BoidEntity::process(double delta, GameState& gameState) {
     // Eat food
     Vector2 newPos = position + velocity * delta;
     if (config->food.has(gameState.getTile(newPos.round()).material)) {
-        gameState.setTile(newPos.round(), "");
+        gameState.setTile(newPos.round(), Pixel(""));
     }
 
     // Move and rebound

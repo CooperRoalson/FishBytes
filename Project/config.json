@@ -106,7 +106,7 @@
 										},
 										{
 											"type": "move",
-											"speed": {"value": 3.0},
+											"speed": {"value": 1.0},
 											"target": {"value": "Vector2(1, 0)"},
 											"relative": true,
 											"fail_when_blocked": false
