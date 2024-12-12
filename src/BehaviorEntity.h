@@ -247,15 +247,17 @@ public:
     static std::unique_ptr<GetPropertyNode> fromDictionary(Dictionary& data);
 };
 
-class SetBlackboardNode : public BehaviorNode {
-    BlackboardValue<StringName> key;
-    BlackboardValue<Variant> value;
+class OperationNode : public BehaviorNode {
+    BlackboardValue<Variant> operand1;
+    BlackboardValue<Variant> operand2;
+    String resultKey;
+    String operation;
 
-    String toString() override { return String("SetBlackboardNode(%s, %s)") % Array::make(key.toString(), value.toString());}
+    String toString() override { return String("BlackboardOperationNode(%s, %s, %s, %s)") % Array::make(operand1.toString(), operand2.toString(), operation, resultKey);}
 
 public:
     Outcome process(BehaviorEntity& entity, double delta, GameState& gameState) override;
-    static std::unique_ptr<SetBlackboardNode> fromDictionary(Dictionary& data);
+    static std::unique_ptr<OperationNode> fromDictionary(Dictionary& data);
 };
 
 #endif //BEHAVIORENTITY_H

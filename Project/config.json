@@ -85,6 +85,9 @@
 		},
 		"behaviorTrees": {
 			"salmonBehavior": {
+				"blackboard": {
+					"dir": "Vector2(1, 0)"
+				},
 				"root": {
 					"type": "repeat_while",
 					"child": {
@@ -105,11 +108,22 @@
 											}
 										},
 										{
-											"type": "move",
-											"speed": {"value": 1.0},
-											"target": {"value": "Vector2(1, 0)"},
-											"relative": true,
-											"fail_when_blocked": false
+											"type": "selector",
+											"children": [
+												{
+													"type": "move",
+													"speed": {"value": 1.0},
+													"target": {"key": "dir"},
+													"relative": true
+												},
+												{
+													"type": "operation",
+													"operation": "*",
+													"operand1": {"key": "dir"},
+													"operand2": {"value": -1},
+													"result_key": "dir"
+												}
+											]
 										}
 									]
 								}

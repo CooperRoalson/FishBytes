@@ -3,12 +3,16 @@
 BehaviorEntity::BehaviorEntity(StringName type, Ref<EntityProperties> properties, Vector2 position) : Entity(type, properties, position) {
     auto* props = Object::cast_to<BehaviorProperties>(properties.ptr());
 
-    blackboard = props->tree->defaultBlackboard.duplicate();
-
-    Array keys = props->defaultBlackboardOverrides.keys();
+    Array keys = props->tree->defaultBlackboard.keys();
     for (int i = 0; i < keys.size(); i++) {
         String key = keys[i];
-        blackboard[key] = props->defaultBlackboardOverrides[key];
+        blackboard[key] = UtilityFunctions::str_to_var(props->tree->defaultBlackboard[key]);
+    }
+
+    keys = props->defaultBlackboardOverrides.keys();
+    for (int i = 0; i < keys.size(); i++) {
+        String key = keys[i];
+        blackboard[key] = UtilityFunctions::str_to_var(props->defaultBlackboardOverrides[key]);
     }
 }
 
@@ -69,8 +73,8 @@ std::unique_ptr<BehaviorNode> BehaviorNode::fromDictionary(Dictionary& data) {
         return SearchForEntityNode::fromDictionary(data);
     } else if (type == "get_property") {
         return GetPropertyNode::fromDictionary(data);
-    } else if (type == "set_blackboard") {
-        return SetBlackboardNode::fromDictionary(data);
+    } else if (type == "operation") {
+        return OperationNode::fromDictionary(data);
     } else {
         UtilityFunctions::printerr("Unknown node type: ", type);
         return std::make_unique<NullNode>();
@@ -195,7 +199,7 @@ std::unique_ptr<MoveNode> MoveNode::fromDictionary(Dictionary& data) {
     node->speed = BlackboardValue<double>::fromDictionary(speed);
 
     node->isRelative = data.get_or_add("relative", false);
-    node->failWhenBlocked = data.get_or_add("fail_when_blocked", false);
+    node->failWhenBlocked = data.get_or_add("fail_when_blocked", true);
     return node;
 }
 
@@ -320,18 +324,48 @@ std::unique_ptr<GetPropertyNode> GetPropertyNode::fromDictionary(Dictionary& dat
     return node;
 }
 
-BehaviorNode::Outcome SetBlackboardNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
-    entity.blackboard[key.get(entity.blackboard)] = value.get(entity.blackboard);
+BehaviorNode::Outcome OperationNode::process(BehaviorEntity& entity, double delta, GameState& gameState) {
+    Variant value1 = operand1.get(entity.blackboard);
+    Variant value2 = operand2.get(entity.blackboard);
+
+    entity.blackboard.get_or_add(resultKey, Variant());
+    Variant& result = entity.blackboard[resultKey];
+
+    bool valid;
+    Variant::Operator op;
+    if (operation == "+") {
+        op = Variant::OP_ADD;
+    } else if (operation == "-") {
+        Variant::evaluate(Variant::OP_NEGATE, value2, value2, value2, valid);
+        if (!valid) { return FAILURE; }
+        op = Variant::OP_ADD;
+    } else if (operation == "*") {
+        op = Variant::OP_MULTIPLY;
+    } else if (operation == "/") {
+        op = Variant::OP_DIVIDE;
+    } else {
+        UtilityFunctions::printerr("Unknown operation: ", operation);
+        return FAILURE;
+    }
+    Variant::evaluate(op, value1, value2, result, valid);
+    if (!valid) {
+        UtilityFunctions::printerr("Invalid operation ", operation, " on ", value1, " and ", value2);
+        return FAILURE;
+    }
     return SUCCESS;
 }
 
-std::unique_ptr<SetBlackboardNode> SetBlackboardNode::fromDictionary(Dictionary& data) {
-    std::unique_ptr<SetBlackboardNode> node = std::make_unique<SetBlackboardNode>();
+std::unique_ptr<OperationNode> OperationNode::fromDictionary(Dictionary& data) {
+    std::unique_ptr<OperationNode> node = std::make_unique<OperationNode>();
 
-    Dictionary key = data.get_or_add("key", Dictionary());
-    node->key = BlackboardValue<StringName>::fromDictionary(key, true);
+    node->operation = data.get_or_add("operation", "");
+    node->resultKey = data.get_or_add("result_key", "");
 
-    Dictionary value = data.get_or_add("value", Dictionary());
-    node->value = BlackboardValue<Variant>::fromDictionary(value);
+    Dictionary operand1 = data.get_or_add("operand1", Dictionary());
+    node->operand1 = BlackboardValue<Variant>::fromDictionary(operand1);
+
+    Dictionary operand2 = data.get_or_add("operand2", Dictionary());
+    node->operand2 = BlackboardValue<Variant>::fromDictionary(operand2);
+
     return node;
 }
