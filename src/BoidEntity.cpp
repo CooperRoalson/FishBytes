@@ -162,7 +162,7 @@ void BoidEntity::process(double delta, GameState& gameState) {
 
     // Update trail
     Vector2 posi = position.round();
-    if (posi != oldPos) {
+    if (posi != oldPos && config->trailLen > 0) {
         if (trail.size() >= config->trailLen) {
             trail.pop_front();
         }
