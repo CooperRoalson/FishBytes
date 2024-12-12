@@ -152,7 +152,9 @@ public:
     void processNearbyEntities(Vector2 position, double radius, const std::function<void(Entity&)>& callback);
 
     Ref<MaterialProperties> getMaterialProperties(StringName mat) {
-        return materials.getProperties(mat);
+        auto result = materials.getProperties(mat);
+        DEV_ASSERT(result.is_valid());
+        return result;
     }
 
     Ref<MaterialProperties> getMaterialProperties(const Pixel& p) {

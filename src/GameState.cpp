@@ -36,16 +36,16 @@ bool Entity::move(Vector2 vel, GameState& gameState, bool canGoInAir) {
     }
 
     double amount = vel.length();
-    Vector2 dir = vel / amount;
-    while (!Math::is_zero_approx(amount)
-            && canGoInAir ? gameState.getMaterialProperties(getCurrentTile(gameState))->isSolid()
-                          : !gameState.getMaterialProperties(getCurrentTile(gameState))->isFluid()) {
-
+    Vector2 dir = vel.normalized();
+    while (amount > 0.1
+            && (canGoInAir ? gameState.getMaterialProperties(getCurrentTile(gameState))->isSolid()
+                          : !gameState.getMaterialProperties(getCurrentTile(gameState))->isFluid())) {
         double sub = Math::min(amount, 1.0);
         position -= dir * sub;
         amount -= sub;
         collided = true;
     }
+    position = position.clamp({0,0}, gameState.getDimensions() - Vector2i(1,1));
     return !collided;
 }
 

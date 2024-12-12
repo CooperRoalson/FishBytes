@@ -33,6 +33,11 @@ BoidEntity::BoidEntity(StringName type, Ref<EntityProperties> properties, Vector
 void BoidEntity::process(double delta, GameState& gameState) {
     Ref<BoidProperties::BoidConfig> config = Object::cast_to<BoidProperties>(properties.ptr())->boidConfig;
 
+    if (!gameState.isInBounds(position.round())) {
+        dead = true;
+        return;
+    }
+
     Ref<MaterialProperties> curTile = gameState.getMaterialProperties(getCurrentTile(gameState));
     if (curTile->type == MaterialProperties::EMPTY) {
         position -= Vector2(0, delta * 10); // TODO: make gravity configurable
